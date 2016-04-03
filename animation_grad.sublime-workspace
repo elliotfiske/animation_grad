@@ -1,0 +1,753 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"mo",
+				"mouseover〔function〕"
+			],
+			[
+				"num",
+				"num_points_in_circle"
+			],
+			[
+				"veloci",
+				"velocity_y"
+			],
+			[
+				"initi",
+				"initialResult"
+			],
+			[
+				"curren",
+				"currentNode"
+			],
+			[
+				"astar",
+				"astarGrid"
+			],
+			[
+				"en",
+				"enemies"
+			],
+			[
+				"enem",
+				"enemy2"
+			],
+			[
+				"eemy",
+				"enemy1"
+			],
+			[
+				"Cred",
+				"CreditProfile"
+			],
+			[
+				"Inactive",
+				"InactivePropertySection"
+			],
+			[
+				"ope",
+				"openedInitialCard"
+			],
+			[
+				"gro",
+				"groupid"
+			],
+			[
+				"App",
+				"ApplicantLink"
+			],
+			[
+				"prop",
+				"propertyid"
+			],
+			[
+				"property",
+				"propertyID"
+			],
+			[
+				"proper",
+				"propertyid"
+			],
+			[
+				"vertical",
+				"vertically-centered-tr"
+			],
+			[
+				"border",
+				"borderStyle"
+			],
+			[
+				"vertic",
+				"vertically-centered-tr"
+			],
+			[
+				"Appl",
+				"ApplicantResume"
+			],
+			[
+				"applicant",
+				"applicantData"
+			],
+			[
+				"app",
+				"applicantData"
+			],
+			[
+				"Applicant",
+				"ApplicantGroupList"
+			],
+			[
+				"FU",
+				"FUN-LAND"
+			],
+			[
+				"landlord",
+				"landlordproperty"
+			],
+			[
+				"Overview",
+				"OverviewDataManager"
+			],
+			[
+				"Property",
+				"PropertyModalOverlay"
+			],
+			[
+				"coll",
+				"collapse-card"
+			],
+			[
+				"FUN",
+				"FUN-GRP"
+			],
+			[
+				"pr",
+				"propertyid"
+			],
+			[
+				"landl",
+				"landlordgroup"
+			],
+			[
+				"active",
+				"activeClass"
+			],
+			[
+				"start",
+				"startActive"
+			],
+			[
+				"fu",
+				"function"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+		[
+			[
+				[
+					"Packages/Python/Python.sublime-build",
+					""
+				],
+				[
+					"Packages/Python/Python.sublime-build",
+					"Syntax Check"
+				]
+			],
+			[
+				"Packages/Python/Python.sublime-build",
+				""
+			]
+		]
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 87.0,
+		"last_filter": "install",
+		"selected_items":
+		[
+			[
+				"install",
+				"Package Control: Install Package"
+			],
+			[
+				"package control: inst",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 467.0
+	},
+	"console":
+	{
+		"height": 126.0,
+		"history":
+		[
+			"import urllib.request,os,hashlib; h = '2915d1851351e5ee549c20394736b442' + '8bc59f460fa1548d1514676163dafc88'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)"
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/Users/elliotfiske/musikeyboard/index.html",
+		"/Users/elliotfiske/musikeyboard/js/timing.js",
+		"/Users/elliotfiske/musikeyboard/js/main.js",
+		"/Users/elliotfiske/musikeyboard/js/key_listener.js",
+		"/Users/elliotfiske/animation/final_proj/js/key_listener.js",
+		"/Users/elliotfiske/animation/final_proj/index.html",
+		"/Users/elliotfiske/animation/9_lab/resources/gen_galaxy.py",
+		"/Users/elliotfiske/animation/9_lab/ugh_old_time/main.cu",
+		"/Users/elliotfiske/adaptive/classes/pushable.js",
+		"/Users/elliotfiske/adaptive/classes/room_generator_puzzle.js",
+		"/Users/elliotfiske/adaptive/classes/enemy.js",
+		"/Users/elliotfiske/adaptive/classes/triggerable.js",
+		"/Users/elliotfiske/adaptive/classes/character.js",
+		"/Users/elliotfiske/adaptive/classes/room.js",
+		"/Users/elliotfiske/adaptive/classes/player.js",
+		"/Users/elliotfiske/adaptive/utils/constants.js",
+		"/Users/elliotfiske/adaptive/classes/items.js",
+		"/Users/elliotfiske/adaptive/assets/images/items.png",
+		"/Users/elliotfiske/adaptive/utils/utils.js",
+		"/Users/elliotfiske/adaptive/assets/images/boulder.png",
+		"/Users/elliotfiske/Library/Application Support/Sublime Text 3/Packages/User/Preferences.sublime-settings",
+		"/Users/elliotfiske/adaptive/classes/dungeon_generator.js",
+		"/Users/elliotfiske/adaptive/classes/room_generator.js",
+		"/Users/elliotfiske/adaptive/utils/astar.js",
+		"/Users/elliotfiske/adaptive/utils/parse-utils.js",
+		"/Users/elliotfiske/adaptive/scenes/controls.js",
+		"/Users/elliotfiske/adaptive/index.html",
+		"/Users/elliotfiske/adaptive/utils/event_manager.js",
+		"/Users/elliotfiske/adaptive/classes/room_generator_combat.js",
+		"/Users/elliotfiske/adaptive/classes/weapons.js",
+		"/Users/elliotfiske/animation/skeleton_asgn/resources/attachment_dumb.txt",
+		"/Users/elliotfiske/animation/skeleton_asgn/resources/simple_vert.glsl",
+		"/Users/elliotfiske/adaptive/classes/roomgenerator.js",
+		"/Users/elliotfiske/adaptive/utils/priority-queue.js",
+		"/Users/elliotfiske/adaptive/utils/enum.js",
+		"/Users/elliotfiske/index.html",
+		"/Users/elliotfiske/adaptive/classes/moving_sprite.js",
+		"/Users/elliotfiske/adaptive/assets/images/player.png",
+		"/Users/elliotfiske/adaptive/assets/images/monster1.gif",
+		"/Users/elliotfiske/adaptive/assets/images/monster2.gif",
+		"/Users/elliotfiske/adaptive/scenes/game.js",
+		"/Users/elliotfiske/adaptive/main.js",
+		"/Users/elliotfiske/adaptive/adaptive.sublime-project",
+		"/Users/elliotfiske/adaptive/classes/class_manager.js",
+		"/Users/elliotfiske/adaptive/enchant.js",
+		"/Users/elliotfiske/Library/Application Support/Sublime Text 3/Packages/User/Default (OSX).sublime-keymap",
+		"/Users/elliotfiske/Library/Application Support/Sublime Text 3/Packages/Default/Default (OSX).sublime-keymap",
+		"/Users/elliotfiske/adaptive/old/main.js",
+		"/Users/elliotfiske/adaptive/parse-1.6.14.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/ApplicantResume.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/ApplicantGroupList.js",
+		"/Users/elliotfiske/new-polyrents/src/packages/classes.js",
+		"/Users/elliotfiske/new-polyrents/src/components/shared/Breadcrumbs.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/AddProperty.js",
+		"/Users/elliotfiske/new-polyrents/src/components/shared/landlordForms.js",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/material-fullpalette.css",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/material-fullpalette.min.css",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/material.css",
+		"/Users/elliotfiske/new-polyrents/src/cloud/resume.js",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/material.min.css",
+		"/Users/elliotfiske/new-polyrents/src/.res/index.html",
+		"/Users/elliotfiske/new-polyrents/src/components/shared/SideNavbar.js",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/sidebar.css",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/css.css",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/GroupLinkManager.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/index.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/index.js",
+		"/Users/elliotfiske/new-polyrents/src/components/shared/Footer.js",
+		"/Users/elliotfiske/new-polyrents/new-polyrents.sublime-project",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/bootstrap-modal-fullscreen.css",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/PropertyList.js",
+		"/Users/elliotfiske/new-polyrents/public/index.html",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/GroupCard.js",
+		"/Users/elliotfiske/new-polyrents/src/packages/loadGlobalBrowserDependencies/paper-collapse.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/PropertyModalOverlay.js",
+		"/Users/elliotfiske/new-polyrents/src/redux/reducers/breadcrumbs.js",
+		"/Users/elliotfiske/new-polyrents/src/redux/reducers.js",
+		"/Users/elliotfiske/new-polyrents/src/redux/actions.js",
+		"/Users/elliotfiske/new-polyrents/src/packages/checkConnection.js",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/dashboard.css",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/index.js",
+		"/Users/elliotfiske/new-polyrents/src/cloud/application.js",
+		"/Users/elliotfiske/new-polyrents/src/styles/userProfile.js",
+		"/Users/elliotfiske/new-polyrents/package.json",
+		"/Users/elliotfiske/new-polyrents/src/views/index/index.js",
+		"/Users/elliotfiske/new-polyrents/src/components/dashboard/landlord/Overview/ApplicantSummaryCard.js",
+		"/Users/elliotfiske/new-polyrents/src/components/account/Account/GroupDisplay.js",
+		"/Users/elliotfiske/new-polyrents/src/.res/css/landlord-dashboard.css",
+		"/Users/elliotfiske/new-polyrents/src/packages/lib.js",
+		"/Users/elliotfiske/new-polyrents/__tests__/singleTenantApplication.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/ApplicantGroupList.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/ApplicantSummaryCard.js",
+		"/Users/elliotfiske/ugh-polyrents/src/packages/loadGlobalBrowserDependencies/paper-collapse.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/GroupLinkManager.js",
+		"/Users/elliotfiske/ugh-polyrents/cloudCodeConfig.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/index.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/index.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/resume.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/PropertyList.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/PropertyModalOverlay.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/OverviewDataManager.js",
+		"/Users/elliotfiske/ugh-polyrents/config.json",
+		"/Users/elliotfiske/ugh-polyrents/setupConfig.js",
+		"/Users/elliotfiske/ugh-polyrents/src/views/resume/resume.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/referenceSubmitTemplate.js",
+		"/Users/elliotfiske/ugh-polyrents/src/.res/css/css.css",
+		"/Users/elliotfiske/ugh-polyrents/src/.res/css/paper-collapse.css",
+		"/Users/elliotfiske/ugh-polyrents/src/.res/css/dashboard.css",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/queries.js",
+		"/Users/elliotfiske/ugh-polyrents/src/packages/classes.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/dashboard/landlord/Overview/AddProperty.js",
+		"/Users/elliotfiske/ugh-polyrents/src/components/shared/landlordForms.js"
+	],
+	"find":
+	{
+		"height": 25.0
+	},
+	"find_in_files":
+	{
+		"height": 93.0,
+		"where_history":
+		[
+			""
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"linear",
+			"sm",
+			"THREE",
+			"sin",
+			"\\t",
+			"ROOM_TYPES",
+			"puzzle",
+			"moved =",
+			"boulder.png",
+			"boulder",
+			"shield_4",
+			"triggerable",
+			"monster1",
+			"inmyway",
+			"createempty",
+			"createroom",
+			"new genera",
+			"pushable",
+			"astar",
+			"puzzle",
+			"room.additem",
+			"room.remove",
+			"canpush",
+			"trypush",
+			"trypus",
+			"canPushIn",
+			"currentScene",
+			"Game.currentroom",
+			"action(",
+			"action.app",
+			"room",
+			"canpushin",
+			"walkable",
+			"triggerable",
+			"additemat",
+			"(\\.\\d+)",
+			"additemat",
+			"puzzleroomgen",
+			"room_generator",
+			"additemat",
+			"\"monster1.gif\"",
+			"isDead",
+			"EM.log",
+			"utils.js\"",
+			"parse-utils",
+			"loadFromDB",
+			"EM.log",
+			"iswalkable",
+			"Bat",
+			"getneighb",
+			";\n",
+			"this.action.apply",
+			"farCell",
+			"nearCell",
+			"action(",
+			"bubbleup",
+			"bubbleDown",
+			"_bubbleDown",
+			"iswalkable",
+			"trymove",
+			".card__big",
+			"card__text",
+			"card--big",
+			"waiting()",
+			"random",
+			"Player(",
+			"new player",
+			"walk",
+			".create(",
+			"Class.extend",
+			"action",
+			"move()",
+			"walk",
+			"Player",
+			"assets =",
+			"map.png",
+			".wall",
+			".floor",
+			"TILES",
+			"Constants.TILES",
+			"Enum",
+			"enum",
+			"public",
+			"Sharable Link",
+			"\"Group\"",
+			"\"Group",
+			"statement",
+			"open",
+			"past",
+			"history",
+			"dummy",
+			"style",
+			"cellspacing",
+			"<!",
+			"<br>",
+			"br",
+			"class",
+			"Promise.",
+			"your propert",
+			"Invite to showing",
+			"Invite to showig",
+			"pending",
+			"Credit pending",
+			"email",
+			"email...",
+			"FULL NAME",
+			"Group +",
+			"Gropu",
+			"009688",
+			"Property",
+			"breadcrumbs.push",
+			"breadcrumbs",
+			"crumbData",
+			"roboto",
+			"Roboto",
+			"lato",
+			"Lato",
+			"menu",
+			"009688",
+			"fixednavbar",
+			"footer",
+			"#sidebar",
+			"applicants",
+			"\"applicants\"",
+			"landlordoverview",
+			"SideNavbar",
+			"Applicants",
+			"Link to=\""
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": true,
+		"replace_history":
+		[
+			"   ",
+			"$1,",
+			"$1",
+			"$1,",
+			"bubbleDown",
+			"animationFrame",
+			"cellSpacing",
+			"<br />",
+			"0986C9",
+			"currProperty",
+			"propertyList"
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 25.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.exec":
+	{
+		"height": 100.0
+	},
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
+	{
+		"height": 0.0
+	},
+	"pinned_build_system": "Packages/Python/Python.sublime-build",
+	"project": "animation_grad.sublime-project",
+	"replace":
+	{
+		"height": 46.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"player",
+				"classes/player.js"
+			],
+			[
+				"cont",
+				"utils/constants.js"
+			],
+			[
+				"puzzle",
+				"classes/room_generator_puzzle.js"
+			],
+			[
+				"chara",
+				"classes/character.js"
+			],
+			[
+				"room",
+				"classes/room.js"
+			],
+			[
+				"trigg",
+				"classes/triggerable.js"
+			],
+			[
+				"item",
+				"classes/items.js"
+			],
+			[
+				"play",
+				"classes/player.js"
+			],
+			[
+				"index",
+				"index.html"
+			],
+			[
+				"pusha",
+				"classes/pushable.js"
+			],
+			[
+				"weapon",
+				"classes/weapons.js"
+			],
+			[
+				"items",
+				"classes/items.js"
+			],
+			[
+				"push",
+				"classes/pushable.js"
+			],
+			[
+				"character",
+				"classes/character.js"
+			],
+			[
+				"event",
+				"utils/event_manager.js"
+			],
+			[
+				"con",
+				"utils/constants.js"
+			],
+			[
+				"prio",
+				"utils/priority-queue.js"
+			],
+			[
+				"indxe",
+				"index.html"
+			],
+			[
+				"main.",
+				"main.js"
+			],
+			[
+				"game",
+				"scenes/game.js"
+			],
+			[
+				"enchan",
+				"enchant.js"
+			],
+			[
+				"conta",
+				"utils/constants.js"
+			],
+			[
+				"sidenav",
+				"src/components/shared/SideNavbar.js"
+			],
+			[
+				"groupc",
+				"src/components/dashboard/landlord/Overview/GroupCard.js"
+			],
+			[
+				"clas",
+				"src/packages/classes.js"
+			],
+			[
+				"groupcard",
+				"src/components/dashboard/landlord/Overview/GroupCard.js"
+			],
+			[
+				"applicantgrou",
+				"src/components/dashboard/landlord/Overview/ApplicantGroupList.js"
+			],
+			[
+				"landlord",
+				"src/components/shared/landlordForms.js"
+			],
+			[
+				"addp",
+				"src/components/dashboard/landlord/Overview/AddProperty.js"
+			],
+			[
+				"propertyli",
+				"src/components/dashboard/landlord/Overview/PropertyList.js"
+			],
+			[
+				"applicantresu",
+				"src/components/dashboard/landlord/Overview/ApplicantResume.js"
+			],
+			[
+				"resume",
+				"src/cloud/resume.js"
+			],
+			[
+				"classe",
+				"src/packages/classes.js"
+			],
+			[
+				"bread",
+				"src/components/shared/Breadcrumbs.js"
+			],
+			[
+				"breadcr",
+				"src/components/shared/Breadcrumbs.js"
+			],
+			[
+				"css.c",
+				"src/.res/css/css.css"
+			],
+			[
+				"material.cs",
+				"src/.res/css/material.css"
+			],
+			[
+				"css.cs",
+				"src/.res/css/css.css"
+			],
+			[
+				"inde",
+				"src/.res/index.html"
+			],
+			[
+				"index.",
+				"public/index.html"
+			]
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"~/ugh-polyrents/ugh-polyrents.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 328.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}

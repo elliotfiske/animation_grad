@@ -1,0 +1,2 @@
+\contentsline {section}{\numberline {1}Multiplying Many Matrices and One Vector}{1}
+\contentsline {section}{\numberline {2}Calculating the Inverse of a Matrix}{1}
