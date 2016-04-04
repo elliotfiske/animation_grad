@@ -290,6 +290,10 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    A_trips.clear();
    SparseMatrix<double> A_sparse(n, n);
    
+   // Set up our delicious right-hand vector.
+   VectorXd b;
+   b.resize(n);
+   
    // Loop through every single particle
    for (int ndx = 0; ndx < particles.size(); ndx++) {
       shared_ptr<Particle> p = particles[ndx];
@@ -300,6 +304,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       if (particle_ndx != -1) {
          vector<shared_ptr<Spring> > curr_springs = all_springs_for_particle[ndx];
          vector<shared_ptr<Spring> > negative_curr_springs = negative_springs_for_particle[ndx];
+         vector<shared_ptr<Spring> > positive_curr_springs = positive_springs_for_particle[ndx];
          
          Matrix3d diagonal_k;
          diagonal_k.setZero();
@@ -349,6 +354,35 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          // Take the diagonal K value and add the Mass to it
          diagonal_k += mini_M + mini_M * damping[0] * h;
          convert_3x3_mat_to_trips(diagonal_k, p->i, p->i);
+         
+         // Set the Mv component of b
+         Vector3d mv = mini_M * p->v;
+         b.block<3,1>(particle_ndx, 0) = mv + p->m * grav;;
+         
+         // calculate the rest of b with the forces (easy)
+         for (int p_ndx = 0; p_ndx < positive_curr_springs.size(); p_ndx++) {
+            shared_ptr<Spring> s = positive_curr_springs[p_ndx];
+            Vector3d dx = s->p1->x - s->p0->x;
+            double l = dx.norm();
+            Vector3d fs = s->E * (l - s->L) * dx / l;
+            fs *= h;
+            
+            if (s->p0->i != -1) {
+               b.block<3, 1>(particle_ndx, 0) += fs;
+            }
+         }
+         
+         for (int n_ndx = 0; n_ndx < negative_curr_springs.size(); n_ndx++) {
+            shared_ptr<Spring> s = negative_curr_springs[n_ndx];
+            Vector3d dx = s->p1->x - s->p0->x;
+            double l = dx.norm();
+            Vector3d fs = s->E * (l - s->L) * dx / l;
+            fs *= h;
+            
+            if (s->p1->i != -1) {
+               b.block<3, 1>(particle_ndx, 0) += -fs;
+            }
+         }
       }
    }
 
@@ -358,8 +392,6 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       
       int particle_ndx = p->i;
       if (particle_ndx != -1) {
-         // A = M + alph * h * M + beta * h^2 * K
-         
          v.block<3,1>(particle_ndx, 0) = p->v;
          
          Matrix3d curr_M = p->m * Matrix3d::Identity();
@@ -403,10 +435,6 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          K.block<3, 3>(s->p1->i, s->p0->i) += -ks;
       }
    }
-   
-   VectorXd b;
-   b.resize(n);
-   b = M*v + h*f;
    
    VectorXd result_v;
    result_v.resize(n);

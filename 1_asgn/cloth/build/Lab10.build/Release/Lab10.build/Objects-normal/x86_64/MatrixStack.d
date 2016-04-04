@@ -1,6 +1,6 @@
 dependencies: \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/MatrixStack.cpp \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/MatrixStack.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/MatrixStack.cpp \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/MatrixStack.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Dense \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Core \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Core/util/DisableStupidWarnings.h \
