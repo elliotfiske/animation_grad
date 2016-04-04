@@ -357,7 +357,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          
          // Set the Mv component of b
          Vector3d mv = mini_M * p->v;
-         b.block<3,1>(particle_ndx, 0) = mv + p->m * grav;;
+         b.block<3,1>(particle_ndx, 0) = mv + p->m * grav * h;
          
          // calculate the rest of b with the forces (easy)
          for (int p_ndx = 0; p_ndx < positive_curr_springs.size(); p_ndx++) {
@@ -386,55 +386,6 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       }
    }
 
-   // Fill in M, v and f
-   for (int ndx = 0; ndx < particles.size(); ndx++) {
-      shared_ptr<Particle> p = particles[ndx];
-      
-      int particle_ndx = p->i;
-      if (particle_ndx != -1) {
-         v.block<3,1>(particle_ndx, 0) = p->v;
-         
-         Matrix3d curr_M = p->m * Matrix3d::Identity();
-         M.block<3,3>(particle_ndx, particle_ndx) = curr_M;
-         
-         f.block<3, 1>(particle_ndx, 0) = p->m * grav;
-      }
-   }
-   
-   // Add the spring forces to f, and the stiffness stuff to k
-   for (int ndx = 0; ndx < springs.size(); ndx++) {
-      shared_ptr<Spring> s = springs[ndx];
-      Vector3d dx = s->p1->x - s->p0->x;
-      double l = dx.norm();
-      Vector3d fs = s->E * (l - s->L) * dx / l;
-      
-      if (s->p0->i != -1) {
-         f.block<3, 1>(s->p0->i, 0) += fs;
-      }
-      
-      if (s->p1->i != -1) {
-         f.block<3, 1>(s->p1->i, 0) += -fs;
-      }
-      
-      double l_L_l = (l - s->L)/l;
-      double scalar_thing = (l_L_l * dx.transpose()*dx);
-      Matrix3d ks = s->E/(l*l) * (
-                                  (1 - l_L_l) * dx*dx.transpose() +
-                                  scalar_thing * Matrix3d::Identity());
-      
-      if (s->p0->i != -1) {
-         K.block<3, 3>(s->p0->i, s->p0->i) += ks;
-      }
-      
-      if (s->p1->i != -1) {
-         K.block<3, 3>(s->p1->i, s->p1->i) += ks;
-      }
-      
-      if (s->p0->i != -1 && s->p1->i != -1) {
-         K.block<3, 3>(s->p0->i, s->p1->i) += -ks;
-         K.block<3, 3>(s->p1->i, s->p0->i) += -ks;
-      }
-   }
    
    VectorXd result_v;
    result_v.resize(n);
