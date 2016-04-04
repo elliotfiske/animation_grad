@@ -1,6 +1,6 @@
 dependencies: \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Cloth.cpp \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Cloth.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Cloth.cpp \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Cloth.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Dense \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Core \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Core/util/DisableStupidWarnings.h \
@@ -219,9 +219,9 @@ dependencies: \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/IterativeLinearSolvers/ConjugateGradient.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Particle.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Spring.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/MatrixStack.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Program.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Particle.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Spring.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/MatrixStack.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Program.h \
   /Users/elliotfiske/cpe474/deps/glew-1.13.0/include/GL/glew.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/GLSL.h
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/GLSL.h

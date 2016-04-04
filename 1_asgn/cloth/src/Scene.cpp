@@ -27,8 +27,8 @@ void Scene::load(const string &RESOURCE_DIR)
 	
 	grav << 0.0, -9.8, 0.0;
 	
-	int rows = 10;
-	int cols = 10;
+	int rows = 15;
+	int cols = 15;
 	double mass = 0.1;
 	double stiffness = 2e2;
 	Vector2d damping(1.0, 3.0);
