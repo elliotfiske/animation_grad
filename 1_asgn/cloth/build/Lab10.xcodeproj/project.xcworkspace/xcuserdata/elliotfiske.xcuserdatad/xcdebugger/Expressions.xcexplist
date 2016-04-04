@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "Cloth::step(double, Eigen::Matrix&lt;double, 3, 1, 0, 3, 1&gt; const&amp;, std::__1::vector&lt;std::__1::shared_ptr&lt;Particle&gt;, std::__1::allocator&lt;std::__1::shared_ptr&lt;Particle&gt; &gt; &gt;):Cloth.cpp">
+         <PersistentStrings>
+            <PersistentString
+               value = "(double *)result_v.m_storage.m_data">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

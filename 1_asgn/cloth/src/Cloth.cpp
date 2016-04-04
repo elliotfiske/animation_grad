@@ -268,7 +268,7 @@ void convert_3x3_mat_to_trips(const Matrix3d &mat, int offset_row, int offset_co
          double curr_num = mat(i, j);
          
          if (curr_num != 0) {
-            cout << "New trip: (" << offset_row + i << ", " << offset_col + j << ") = " << curr_num << endl;
+//            cout << "New trip: (" << offset_row + i << ", " << offset_col + j << ") = " << curr_num << endl;
             A_trips.push_back(Trip(offset_row + i, offset_col + j, curr_num));
          }
       }
@@ -282,15 +282,8 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
 	v.setZero();
 	f.setZero();
    
-   Matrix3d test = Matrix3d::Identity();
-   test(1, 0) = 2;
-   test *= 3;
-   
-   convert_3x3_mat_to_trips(test, 6, 0);
-   
    A_trips.clear();
    SparseMatrix<double> A_sparse(n, n);
-   
    
    // Loop through every single particle
    for (int ndx = 0; ndx < particles.size(); ndx++) {
@@ -308,7 +301,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          
          // Check all of the springs attached to the CURRENT PARTICLE
          for (int s_ndx = 0; s_ndx < curr_springs.size(); s_ndx++) {
-            shared_ptr<Spring> s = curr_springs[ndx];
+            shared_ptr<Spring> s = curr_springs[s_ndx];
             Vector3d dx = s->p1->x - s->p0->x;
             double l = dx.norm();
             
@@ -420,6 +413,8 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    result_v.resize(n);
    
    //   result_v = A.ldlt().solve(b);
+   
+   A_sparse.setFromTriplets(A_trips.begin(), A_trips.end());
    
    ConjugateGradient<SparseMatrix<double> > cg;
    cg.setMaxIterations(25);
