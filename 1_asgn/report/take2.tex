@@ -75,12 +75,12 @@ It is a much cheaper operation to solve a $\matr{A}\vec{x} = \matr{B}$ matrix pr
 \begin{table}[!h]
 	\begin{tabular}{| l | l | l | l |}
 		\hline
-		Matrix Dimension & Slow Method Time ($\mu$s) & Fast Method Time ($\mu$s) \\ \hline
-		10 & 162 & 52 \\ \hline
-		50 & 3824 & 691  \\ \hline
-		100 & 32,515 & 2561  \\ \hline
-		300 & 537,397 & 17,399  \\ \hline
-		1000 & 20,126,148 & 169,915 \\
+		Matrix Dimension & $inverse()$ Time ($\mu$s) & $solve()$ Time ($\mu$s) \\ \hline
+		10 & 61 & 70 \\ \hline
+		50 & 278 & 267  \\ \hline
+		100 & 670 & 935  \\ \hline
+		300 & 9599 & 17,104  \\ \hline
+		1000 & 320,196 & 244,522 \\
 		\hline
 	\end{tabular}
 	\caption{Using $inverse()$ vs. using $solve()$\label{data_inverse}}

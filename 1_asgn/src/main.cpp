@@ -69,7 +69,8 @@ void do_inverse(int dim, bool optimized) {
    high_resolution_clock::time_point t1 = high_resolution_clock::now();
    
    if (optimized) {
-      b = B.colPivHouseholderQr().solve(A * x);
+      VectorXf Ax = A * x;
+      b = B.colPivHouseholderQr().solve(Ax);
       R = xt * At * b;
    }
    else {
@@ -86,38 +87,6 @@ void do_inverse(int dim, bool optimized) {
 
 int main(int argc, char **argv)
 {
-//   do_inverse(10, true);
-//   do_inverse(10, false);
-//   
-//   cout << endl;
-//   
-//   do_inverse(50, true);
-//   do_inverse(50, false);
-//   
-//   cout << endl;
-//   
-//   do_inverse(100, true);
-//   do_inverse(100, false);
-//   
-//   cout << endl;
-//   
-//   do_inverse(300, true);
-//   do_inverse(300, false);
-//   
-//   cout << endl;
-//   
-//   do_inverse(1000, true);
-//   do_inverse(1000, false);
-   
-   cout << endl;
-   cout << "---------------------------------------------";
-   cout << endl;
-   
-   do_inverse(5, true);
-   do_inverse(5, false);
-   
-   cout << endl;
-   
    do_inverse(10, true);
    do_inverse(10, false);
    
@@ -135,6 +104,15 @@ int main(int argc, char **argv)
    
    do_inverse(300, true);
    do_inverse(300, false);
+   
+   cout << endl;
+   
+   do_inverse(1000, true);
+   do_inverse(1000, false);
+   
+   cout << endl;
+   cout << "---------------------------------------------";
+   cout << endl;
    
    return 0;
 }
