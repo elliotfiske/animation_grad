@@ -21,6 +21,10 @@ shared_ptr<Spring> createSpring(const shared_ptr<Particle> p0, const shared_ptr<
 	return s;
 }
 
+// At each index N, contains a list of the springs for the Nth particle.
+vector< vector< shared_ptr<Spring> > > springs_for_particle;
+vector< vector< shared_ptr<Spring> > > negative_springs_for_particle;
+
 Cloth::Cloth(int rows, int cols,
 			 const Vector3d &x00,
 			 const Vector3d &x01,
@@ -67,6 +71,9 @@ Cloth::Cloth(int rows, int cols,
 			}
 		}
 	}
+   
+   springs_for_particle.resize(particles.size());
+   negative_springs_for_particle.resize(particles.size());
 	
 	// Create x springs
 	for(int i = 0; i < rows; ++i) {
@@ -74,6 +81,10 @@ Cloth::Cloth(int rows, int cols,
 			int k0 = i*cols + j;
 			int k1 = k0 + 1;
 			springs.push_back(createSpring(particles[k0], particles[k1], stiffness));
+         
+         springs_for_particle[k0].push_back(springs.back());
+         springs_for_particle[k1].push_back(springs.back());
+         negative_springs_for_particle[k1].push_back(springs.back());
 		}
 	}
 	
@@ -83,6 +94,10 @@ Cloth::Cloth(int rows, int cols,
 			int k0 = i*cols + j;
 			int k1 = k0 + cols;
 			springs.push_back(createSpring(particles[k0], particles[k1], stiffness));
+         
+         springs_for_particle[k0].push_back(springs.back());
+         springs_for_particle[k1].push_back(springs.back());
+         negative_springs_for_particle[k1].push_back(springs.back());
 		}
 	}
 	
@@ -93,8 +108,15 @@ Cloth::Cloth(int rows, int cols,
 			int k10 = k00 + 1;
 			int k01 = k00 + cols;
 			int k11 = k01 + 1;
-			springs.push_back(createSpring(particles[k00], particles[k11], stiffness));
+         springs.push_back(createSpring(particles[k00], particles[k11], stiffness));
+         springs_for_particle[k00].push_back(springs.back());
+         springs_for_particle[k11].push_back(springs.back());
+         negative_springs_for_particle[k11].push_back(springs.back());
+         
 			springs.push_back(createSpring(particles[k10], particles[k01], stiffness));
+         springs_for_particle[k10].push_back(springs.back());
+         springs_for_particle[k01].push_back(springs.back());
+         negative_springs_for_particle[k01].push_back(springs.back());
 		}
 	}
 
@@ -233,12 +255,104 @@ void Cloth::updatePosNor()
 	}
 }
 
+typedef Eigen::Triplet<double> Trip;
+vector<Trip> A_trips;
+
+// Iterates through a 3x3 matrix and puts all the non-zero
+//  entries into the list o' triplets.
+//
+// offset_x and offset_y determine where the matrix is in the super big matrix. ITS LATE OK
+void convert_3x3_mat_to_trips(const Matrix3d &mat, int offset_row, int offset_col) {
+   for (int i = 0; i < 3; i++) {
+      for (int j = 0; j < 3; j++) {
+         double curr_num = mat(i, j);
+         
+         if (curr_num != 0) {
+            cout << "New trip: (" << offset_row + i << ", " << offset_col + j << ") = " << curr_num << endl;
+            A_trips.push_back(Trip(offset_row + i, offset_col + j, curr_num));
+         }
+      }
+   }
+}
+
 void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Particle> > spheres)
 {
 	M.setZero();
 	K.setZero();
 	v.setZero();
 	f.setZero();
+   
+   Matrix3d test = Matrix3d::Identity();
+   test(1, 0) = 2;
+   test *= 3;
+   
+   convert_3x3_mat_to_trips(test, 6, 0);
+   
+   A_trips.clear();
+   SparseMatrix<double> A_sparse(n, n);
+   
+   
+   // Loop through every single particle
+   for (int ndx = 0; ndx < particles.size(); ndx++) {
+      shared_ptr<Particle> p = particles[ndx];
+      
+      Matrix3d mini_M = p->m * Matrix3d::Identity();
+      
+      int particle_ndx = p->i;
+      if (particle_ndx != -1) {
+         vector<shared_ptr<Spring> > curr_springs = springs_for_particle[ndx];
+         vector<shared_ptr<Spring> > negative_curr_springs = negative_springs_for_particle[ndx];
+         
+         Matrix3d diagonal_k;
+         diagonal_k.setZero();
+         
+         // Check all of the springs attached to the CURRENT PARTICLE
+         for (int s_ndx = 0; s_ndx < curr_springs.size(); s_ndx++) {
+            shared_ptr<Spring> s = curr_springs[ndx];
+            Vector3d dx = s->p1->x - s->p0->x;
+            double l = dx.norm();
+            
+            double l_L_l = (l - s->L)/l;
+            double scalar_thing = (l_L_l * dx.transpose()*dx);
+            // "ks" is mini ks block between the current particle and the other particle on the end of the current spring
+            Matrix3d ks = s->E/(l*l) * (
+                                        (1 - l_L_l) * dx*dx.transpose() +
+                                        scalar_thing * Matrix3d::Identity());
+            
+            ks *= damping[1] * h*h;
+            
+            // We do the diagonal blocks of K separately, cuz they're the only ones that depend
+            // on more than 1 spring.
+            diagonal_k += ks;
+            
+            // Tricky part! Here we fill in the entries that look like this:
+            //
+            //
+            //   x- - -     and nothing else!
+            //   |
+            //   |
+            //   |
+            //
+            //   They're all equal to -ks.
+            if (s->p0->i != -1 && s->p1->i != -1) {
+               if (s->p0->i > p->i) {
+                  convert_3x3_mat_to_trips(-ks, s->p0->i, p->i);
+                  convert_3x3_mat_to_trips(-ks, p->i, s->p0->i);
+               }
+               
+               if (s->p1->i > p->i) {
+                  convert_3x3_mat_to_trips(-ks, s->p1->i, p->i);
+                  convert_3x3_mat_to_trips(-ks, p->i, s->p1->i);
+               }
+            }
+         }
+         // end looping through all the silly springs
+         
+         // Take the diagonal K value and add the Mass to it
+         diagonal_k += mini_M + mini_M * damping[0] * h;
+         convert_3x3_mat_to_trips(diagonal_k, p->i, p->i);
+      }
+   }
 
    // Fill in M, v and f
    for (int ndx = 0; ndx < particles.size(); ndx++) {
@@ -246,6 +360,8 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       
       int particle_ndx = p->i;
       if (particle_ndx != -1) {
+         // A = M + alph * h * M + beta * h^2 * K
+         
          v.block<3,1>(particle_ndx, 0) = p->v;
          
          Matrix3d curr_M = p->m * Matrix3d::Identity();
@@ -292,9 +408,9 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    
    
    // Solve the system (M + D) v = Mv + hf   -> for v
-   MatrixXd A;
-   A.resize(n, n);
-   A = M + h*damping[0]*M + h*h * damping[1]*K;
+//   MatrixXd A;
+//   A.resize(n, n);
+//   A = M + h*damping[0]*M + h*h * damping[1]*K;
    
    VectorXd b;
    b.resize(n);
@@ -302,7 +418,14 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    
    VectorXd result_v;
    result_v.resize(n);
-   result_v = A.ldlt().solve(b);
+   
+   //   result_v = A.ldlt().solve(b);
+   
+   ConjugateGradient<SparseMatrix<double> > cg;
+   cg.setMaxIterations(25);
+   cg.setTolerance(1e-3);
+   cg.compute(A_sparse);
+   result_v = cg.solveWithGuess(b, v);
    
    // Set each particles' new velocity
    for (int ndx = 0; ndx < particles.size(); ndx++) {
