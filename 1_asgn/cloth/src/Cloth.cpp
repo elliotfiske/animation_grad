@@ -405,6 +405,8 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
 //   A.resize(n, n);
 //   A = M + h*damping[0]*M + h*h * damping[1]*K;
    
+//   cout << A << endl;
+   
    VectorXd b;
    b.resize(n);
    b = M*v + h*f;
@@ -415,6 +417,8 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    //   result_v = A.ldlt().solve(b);
    
    A_sparse.setFromTriplets(A_trips.begin(), A_trips.end());
+   
+//   cout << A_sparse << endl;
    
    ConjugateGradient<SparseMatrix<double> > cg;
    cg.setMaxIterations(25);
