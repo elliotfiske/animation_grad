@@ -372,6 +372,8 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
             }
          }
          
+         // dont look at this code its bad ok
+         
          for (int n_ndx = 0; n_ndx < negative_curr_springs.size(); n_ndx++) {
             shared_ptr<Spring> s = negative_curr_springs[n_ndx];
             Vector3d dx = s->p1->x - s->p0->x;
@@ -386,7 +388,6 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       }
    }
 
-   
    VectorXd result_v;
    result_v.resize(n);
    
