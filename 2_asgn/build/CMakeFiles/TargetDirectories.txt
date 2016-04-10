@@ -1,5 +1,0 @@
-/Users/elliotfiske/animation_grad/1_asgn/build/CMakeFiles/Lab02.dir
-/Users/elliotfiske/cpe474/deps/glfw-3.1.2/debug/CMakeFiles/uninstall.dir
-/Users/elliotfiske/animation_grad/1_asgn/build/CMakeFiles/ALL_BUILD.dir
-/Users/elliotfiske/animation_grad/1_asgn/build/CMakeFiles/ZERO_CHECK.dir
-/Users/elliotfiske/cpe474/deps/glfw-3.1.2/debug/src/CMakeFiles/glfw.dir

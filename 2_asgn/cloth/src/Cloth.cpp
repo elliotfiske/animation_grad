@@ -26,6 +26,9 @@ vector< vector< shared_ptr<Spring> > > all_springs_for_particle;
 vector< vector< shared_ptr<Spring> > > negative_springs_for_particle;
 vector< vector< shared_ptr<Spring> > > positive_springs_for_particle;
 
+// Saves 'v' from last time for the CG guess
+Eigen::VectorXd prev_v;
+
 Cloth::Cloth(int rows, int cols,
 			 const Vector3d &x00,
 			 const Vector3d &x01,
@@ -61,15 +64,15 @@ Cloth::Cloth(int rows, int cols,
 			p->x = x;
 			p->v << 0.0, 0.0, 0.0;
 			p->m = mass/(nVerts);
-			// Pin two particles
-			if(i == 0 && (j == 0 || j == cols-1)) {
-				p->fixed = true;
-				p->i = -1;
-			} else {
+			// Pin two particles ELLIOT SEZ: NO WE DON'T LOL
+//			if(i == 0 && (j == 0 || j == cols-1)) {
+//				p->fixed = true;
+//				p->i = -1;
+//			} else {
 				p->fixed = false;
 				p->i = n;
 				n += 3;
-			}
+//			}
 		}
 	}
    
@@ -129,8 +132,11 @@ Cloth::Cloth(int rows, int cols,
 	// Build system matrices and vectors
 	M.resize(n,n);
 	K.resize(n,n);
-	v.resize(n);
-	f.resize(n);
+	v.resize(n + 3);
+	f.resize(n + 3); // NOTE: added 3 to make room for constraints
+   
+   prev_v.resize(n+3);
+   prev_v.setZero();
 	
 	// Build vertex buffers
 	posBuf.clear();
@@ -280,6 +286,25 @@ void convert_3x3_mat_to_trips(const Matrix3d &mat, int offset_row, int offset_co
    }
 }
 
+void Cloth::do_collision(const std::vector< std::shared_ptr<Particle> > spheres) {
+   // Check collision
+   for (int ndx = 0; ndx < spheres.size(); ndx++) {
+      shared_ptr<Particle> collider = spheres[ndx];
+      
+      for (int p_ndx = 0; p_ndx < particles.size(); p_ndx++) {
+         shared_ptr<Particle> p = particles[p_ndx];
+         Vector3d dx = p->x - collider->x;
+         double dist = dx.norm();
+         if (dist <= p->r + collider->r) {
+            p->x = ( (collider->r + p->r) * dx.normalized() + collider->x);
+            
+            Vector3d projected = p->v.dot(dx.normalized()) * dx;
+            p->v -= projected;
+         }
+      }
+   }
+}
+
 void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Particle> > spheres)
 {
 	M.setZero();
@@ -288,11 +313,11 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
 	f.setZero();
    
    A_trips.clear();
-   SparseMatrix<double> A_sparse(n, n);
+   SparseMatrix<double> A_sparse(n + 3, n + 3);
    
    // Set up our delicious right-hand vector.
    VectorXd b;
-   b.resize(n);
+   b.resize(n + 3);
    
    // Loop through every single particle
    for (int ndx = 0; ndx < particles.size(); ndx++) {
@@ -387,9 +412,15 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          }
       }
    }
+   
+   // Add constraints
+   convert_3x3_mat_to_trips(Matrix3d::Identity(), n,   0);
+   convert_3x3_mat_to_trips(Matrix3d::Identity(), 0,   n);
+//   convert_3x3_mat_to_trips(Matrix3d::Identity(), n,   n-3);
+//   convert_3x3_mat_to_trips(Matrix3d::Identity(), n-3, n);
 
    VectorXd result_v;
-   result_v.resize(n);
+   result_v.resize(n+3);
    
    A_sparse.setFromTriplets(A_trips.begin(), A_trips.end());
    
@@ -397,7 +428,9 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    cg.setMaxIterations(25);
    cg.setTolerance(1e-3);
    cg.compute(A_sparse);
-   result_v = cg.solveWithGuess(b, v);
+   result_v = cg.solveWithGuess(b, prev_v);
+   
+   cout << "ERROR: " << cg.error() << endl;
    
    // Set each particles' new velocity
    for (int ndx = 0; ndx < particles.size(); ndx++) {
@@ -419,22 +452,10 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       }
    }
    
-   // Check collision
-   for (int ndx = 0; ndx < spheres.size(); ndx++) {
-      shared_ptr<Particle> collider = spheres[ndx];
-      
-      for (int p_ndx = 0; p_ndx < particles.size(); p_ndx++) {
-         shared_ptr<Particle> p = particles[p_ndx];
-         Vector3d dx = p->x - collider->x;
-         double dist = dx.norm();
-         if (dist <= p->r + collider->r) {
-            p->x = ( (collider->r + p->r) * dx.normalized() + collider->x);
-            
-            Vector3d projected = p->v.dot(dx.normalized()) * dx;
-            p->v -= projected;
-         }
-      }
-   }
+   prev_v = result_v;
+   cout << result_v << endl;
+   
+//   do_collision(spheres);
 	
 	// Update position and normal buffers
 	updatePosNor();

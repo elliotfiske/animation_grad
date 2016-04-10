@@ -1,7 +1,7 @@
 dependencies: \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Spring.cpp \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Spring.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth/src/Particle.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Spring.cpp \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Spring.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Particle.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Dense \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Core \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Core/util/DisableStupidWarnings.h \

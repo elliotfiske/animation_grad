@@ -27,8 +27,8 @@ void Scene::load(const string &RESOURCE_DIR)
 	
 	grav << 0.0, -9.8, 0.0;
 	
-	int rows = 15;
-	int cols = 15;
+	int rows = 10;
+	int cols = 10;
 	double mass = 0.1;
 	double stiffness = 2e2;
 	Vector2d damping(1.0, 3.0);
@@ -80,7 +80,7 @@ void Scene::step()
 		Vector3d x0 = s->x;
 		double radius = 0.5;
 		double a = 2.0*t;
-		s->x(2) = radius * sin(a);
+		s->x(2) = -radius * sin(a);
 		Vector3d dx = s->x - x0;
 		s->v = dx/h;
 	}

@@ -21,6 +21,22 @@ shared_ptr<Spring> createSpring(const shared_ptr<Particle> p0, const shared_ptr<
 	return s;
 }
 
+void Cloth::clothesline_constraint() {
+
+}
+
+void Cloth::fake_pinning() {
+   G.resize(6, n);
+   G.block<3, 3>(0, 0) = Matrix3d::Identity();
+   G.block<3, 3>(3, n-3) = Matrix3d::Identity();
+}
+
+void Cloth::v0_negative_v1() {
+   G.resize(3, n);
+   G.block<3, 3>(0, 0) = Matrix3d::Identity();
+   G.block<3, 3>(0, (cols - 1)*3) = Matrix3d::Identity();
+}
+
 Cloth::Cloth(int rows, int cols,
 			 const Vector3d &x00,
 			 const Vector3d &x01,
@@ -57,14 +73,14 @@ Cloth::Cloth(int rows, int cols,
 			p->v << 0.0, 0.0, 0.0;
 			p->m = mass/(nVerts);
 			// Pin two particles
-			if(i == 0 && (j == 0 || j == cols-1)) {
-				p->fixed = true;
-				p->i = -1;
-			} else {
+//			if(i == 0 && (j == 0 || j == cols-1)) {
+//				p->fixed = true;
+//				p->i = -1;
+//			} else {
 				p->fixed = false;
 				p->i = n;
 				n += 3;
-			}
+//			}
 		}
 	}
 	
@@ -97,12 +113,6 @@ Cloth::Cloth(int rows, int cols,
 			springs.push_back(createSpring(particles[k10], particles[k01], stiffness));
 		}
 	}
-
-	// Build system matrices and vectors
-	M.resize(n,n);
-	K.resize(n,n);
-	v.resize(n);
-	f.resize(n);
 	
 	// Build vertex buffers
 	posBuf.clear();
@@ -129,6 +139,18 @@ Cloth::Cloth(int rows, int cols,
 			eleBuf.push_back(k1);
 		}
 	}
+   
+   // Constraints!
+//   v0_negative_v1();
+   fake_pinning();
+//   clothesline_constraint();
+   
+   // Build system matrices and vectors
+   int cr = G.rows(); // cr = constraint rows
+   M.resize(n + cr, n + cr);
+   K.resize(n + cr, n + cr);
+   v.resize(n + cr);
+   f.resize(n + cr);
 }
 
 Cloth::~Cloth()
@@ -293,15 +315,16 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    
    // Solve the system (M + D) v = Mv + hf   -> for v
    MatrixXd A;
-   A.resize(n, n);
+   A.resize(n + G.rows(), n + G.rows());
    A = M + h*damping[0]*M + h*h * damping[1]*K;
+   A.block(n, 0, G.rows(), G.cols()) = G;
+   A.block(0, n, G.cols(), G.rows()) = G.transpose();
    
    VectorXd b;
-   b.resize(n);
    b = M*v + h*f;
    
    VectorXd result_v;
-   result_v.resize(n);
+//   result_v.resize(n + G.rows());
    result_v = A.ldlt().solve(b);
    
    // Set each particles' new velocity
