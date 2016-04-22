@@ -21,20 +21,22 @@ shared_ptr<Spring> createSpring(const shared_ptr<Particle> p0, const shared_ptr<
 	return s;
 }
 
-void Cloth::clothesline_constraint() {
-
+void Cloth::circle_constraint() {
+   G.resize(1, n);
+   G(0, 1) = 1;
+   G(0, 2) = 0.2;
 }
 
 void Cloth::fake_pinning() {
    G.resize(6, n);
    G.block<3, 3>(0, 0) = Matrix3d::Identity();
-   G.block<3, 3>(3, n-3) = Matrix3d::Identity();
+   G.block<3, 3>(3, (cols - 1)*3) = Matrix3d::Identity();
 }
 
 void Cloth::v0_negative_v1() {
    G.resize(3, n);
    G.block<3, 3>(0, 0) = Matrix3d::Identity();
-   G.block<3, 3>(0, (cols - 1)*3) = Matrix3d::Identity();
+   G.block<3, 3>(0, n-3) = Matrix3d::Identity();
 }
 
 Cloth::Cloth(int rows, int cols,
@@ -143,7 +145,7 @@ Cloth::Cloth(int rows, int cols,
    // Constraints!
 //   v0_negative_v1();
    fake_pinning();
-//   clothesline_constraint();
+//   circle_constraint();
    
    // Build system matrices and vectors
    int cr = G.rows(); // cr = constraint rows
@@ -322,9 +324,11 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    
    VectorXd b;
    b = M*v + h*f;
+//   b.block<3, 1>(n, 0) = spheres[0]->v;
+   b(n+1, 0) = spheres[0]->v(2);
+   b(n+4, 0) = spheres[0]->v(2);
    
    VectorXd result_v;
-//   result_v.resize(n + G.rows());
    result_v = A.ldlt().solve(b);
    
    // Set each particles' new velocity

@@ -34,7 +34,7 @@ public:
 	void updatePosNor();
 	void step(double h, const Eigen::Vector3d &grav, const std::vector< std::shared_ptr<Particle> > spheres);
 	
-   void clothesline_constraint();
+   void circle_constraint();
    void fake_pinning();
    void v0_negative_v1();
 	void init();
