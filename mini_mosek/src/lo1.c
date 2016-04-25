@@ -19,7 +19,12 @@ static void MSKAPI printstr(void *handle,
   printf("%s",str);
 } /* printstr */
 
-int main(int argc,char *argv[])
+// int main(int argc,char *argv[])
+// {
+
+// }
+
+void do_thing()
 {
   const MSKint32t numvar = 4,
                   numcon = 3;
