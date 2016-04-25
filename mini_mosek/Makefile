@@ -1,7 +1,7 @@
 #Gnu Make / MacOSX 64x86 / GCC
 
-INCPATHS=-I~/mosek/7/tools/platform/osx64x86/h -I.
-LIBPATHS=-L~/mosek/7/tools/platform/osx64x86/bin
+INCPATHS=-I/Users/elliotfiske/mosek/7/tools/platform/osx64x86/h -I.
+LIBPATHS=-L/Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin
 MOSEKLIB=-lmosek64
 CCOPT=
 LDOPT=-Wl,-rpath,@loader_path~/mosek/7/tools/platform/osx64x86/bin -pthread -lSystem -lm -Xlinker -bind_at_load
@@ -11,7 +11,7 @@ LD=gcc -m64
 lo1: lo1.c
 	$(CC) -c $(INCPATHS)          $(CCOPT) -o lo1.o lo1.c
 	$(LD) $(LIBPATHS) lo1.o $(MOSEKLIB) $(LDOPT) -o lo1
-#install_name_tool -change @loader_path/libmosek64.7.1.dylib ../../platform/osx64x86/bin/libmosek64.7.1.dylib lo1
+	install_name_tool -change @loader_path/libmosek64.7.1.dylib ../../platform/osx64x86/bin/libmosek64.7.1.dylib lo1
 
 
 #
