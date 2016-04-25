@@ -8,11 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		C90F13051CC750160092ACCB /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C90F13041CC750160092ACCB /* main.cpp */; };
-		C90F13511CC757870092ACCB /* libiomp5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F13471CC757730092ACCB /* libiomp5.dylib */; };
 		C90F13521CC757870092ACCB /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F13481CC757730092ACCB /* libmosek64.7.1.dylib */; };
-		C90F13531CC757870092ACCB /* libmosekglb64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F13491CC757730092ACCB /* libmosekglb64.7.1.dylib */; };
 		C90F13541CC757870092ACCB /* libmosekscopt7_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F134A1CC757730092ACCB /* libmosekscopt7_1.dylib */; };
-		C90F13551CC757870092ACCB /* libmosekxx7_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F134B1CC757730092ACCB /* libmosekxx7_1.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -42,11 +39,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C90F13511CC757870092ACCB /* libiomp5.dylib in Frameworks */,
 				C90F13521CC757870092ACCB /* libmosek64.7.1.dylib in Frameworks */,
-				C90F13531CC757870092ACCB /* libmosekglb64.7.1.dylib in Frameworks */,
 				C90F13541CC757870092ACCB /* libmosekscopt7_1.dylib in Frameworks */,
-				C90F13551CC757870092ACCB /* libmosekxx7_1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -263,6 +257,7 @@
 				C90F130A1CC750160092ACCB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

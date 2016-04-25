@@ -39,6 +39,8 @@ endif()
 include_directories(${GLFW_DIR}/include)
 target_link_libraries(${CMAKE_PROJECT_NAME} glfw ${GLFW_LIBRARIES})
 
+# MESSAGE( STATUS "WHAT IS THIS:         " ${GLFW_LIBRARIES} )
+
 # Get the GLEW environment variable.
 set(GLEW_DIR "$ENV{GLEW_DIR}")
 if(NOT GLEW_DIR)
