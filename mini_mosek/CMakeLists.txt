@@ -53,7 +53,12 @@ else()
 endif()
 
 LINK_DIRECTORIES(/Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin)
-target_link_libraries(${CMAKE_PROJECT_NAME} mosek64)
+# target_link_libraries(${CMAKE_PROJECT_NAME} /Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin/libmosek64.7.1.dyld)
+
+# MOSEK GARBAGE
+SET(GCC_LINK_FLAGS "-Wl,-rpath,@loader_path~/mosek/7/tools/platform/osx64x86/bin -pthread -lSystem -lm -Xlinker -bind_at_load")
+add_definitions(${GCC_LINK_FLAGS})
+
 
 # OS specific options and libraries
 if(WIN32)

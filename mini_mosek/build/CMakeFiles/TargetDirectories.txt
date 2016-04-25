@@ -1,0 +1,3 @@
+/Users/elliotfiske/animation_grad/mini_mosek/build/CMakeFiles/mosek_test.dir
+/Users/elliotfiske/cpe474/deps/glfw-3.1.2/debug/CMakeFiles/uninstall.dir
+/Users/elliotfiske/cpe474/deps/glfw-3.1.2/debug/src/CMakeFiles/glfw.dir
