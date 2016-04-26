@@ -7,9 +7,19 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		C90F13051CC750160092ACCB /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C90F13041CC750160092ACCB /* main.cpp */; };
 		C90F13521CC757870092ACCB /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F13481CC757730092ACCB /* libmosek64.7.1.dylib */; };
 		C90F13541CC757870092ACCB /* libmosekscopt7_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C90F134A1CC757730092ACCB /* libmosekscopt7_1.dylib */; };
+		C91870551CCE902900E9555A /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870441CCE902900E9555A /* main.cpp */; };
+		C91870701CCE907500E9555A /* Camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C918705C1CCE907500E9555A /* Camera.cpp */; };
+		C91870711CCE907500E9555A /* Cloth.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C918705E1CCE907500E9555A /* Cloth.cpp */; };
+		C91870721CCE907500E9555A /* GLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870601CCE907500E9555A /* GLSL.cpp */; };
+		C91870731CCE907500E9555A /* lo1-old.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870621CCE907500E9555A /* lo1-old.cpp */; };
+		C91870741CCE907500E9555A /* MatrixStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870631CCE907500E9555A /* MatrixStack.cpp */; };
+		C91870751CCE907500E9555A /* Particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870651CCE907500E9555A /* Particle.cpp */; };
+		C91870761CCE907500E9555A /* Program.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870671CCE907500E9555A /* Program.cpp */; };
+		C91870771CCE907500E9555A /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C91870691CCE907500E9555A /* Scene.cpp */; };
+		C91870781CCE907500E9555A /* Shape.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C918706B1CCE907500E9555A /* Shape.cpp */; };
+		C91870791CCE907500E9555A /* Spring.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C918706D1CCE907500E9555A /* Spring.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,12 +36,32 @@
 
 /* Begin PBXFileReference section */
 		C90F13011CC750160092ACCB /* MosekTest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MosekTest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C90F13041CC750160092ACCB /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		C90F13471CC757730092ACCB /* libiomp5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiomp5.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libiomp5.dylib; sourceTree = "<group>"; };
 		C90F13481CC757730092ACCB /* libmosek64.7.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.7.1.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libmosek64.7.1.dylib; sourceTree = "<group>"; };
 		C90F13491CC757730092ACCB /* libmosekglb64.7.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosekglb64.7.1.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libmosekglb64.7.1.dylib; sourceTree = "<group>"; };
 		C90F134A1CC757730092ACCB /* libmosekscopt7_1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosekscopt7_1.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libmosekscopt7_1.dylib; sourceTree = "<group>"; };
 		C90F134B1CC757730092ACCB /* libmosekxx7_1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosekxx7_1.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libmosekxx7_1.dylib; sourceTree = "<group>"; };
+		C91870441CCE902900E9555A /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = "../../1_asgn/cloth dense/src/main.cpp"; sourceTree = "<group>"; };
+		C918705C1CCE907500E9555A /* Camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera.cpp; sourceTree = "<group>"; };
+		C918705D1CCE907500E9555A /* Camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera.h; sourceTree = "<group>"; };
+		C918705E1CCE907500E9555A /* Cloth.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cloth.cpp; sourceTree = "<group>"; };
+		C918705F1CCE907500E9555A /* Cloth.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Cloth.h; sourceTree = "<group>"; };
+		C91870601CCE907500E9555A /* GLSL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GLSL.cpp; sourceTree = "<group>"; };
+		C91870611CCE907500E9555A /* GLSL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLSL.h; sourceTree = "<group>"; };
+		C91870621CCE907500E9555A /* lo1-old.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "lo1-old.cpp"; sourceTree = "<group>"; };
+		C91870631CCE907500E9555A /* MatrixStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MatrixStack.cpp; sourceTree = "<group>"; };
+		C91870641CCE907500E9555A /* MatrixStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MatrixStack.h; sourceTree = "<group>"; };
+		C91870651CCE907500E9555A /* Particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Particle.cpp; sourceTree = "<group>"; };
+		C91870661CCE907500E9555A /* Particle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Particle.h; sourceTree = "<group>"; };
+		C91870671CCE907500E9555A /* Program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Program.cpp; sourceTree = "<group>"; };
+		C91870681CCE907500E9555A /* Program.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Program.h; sourceTree = "<group>"; };
+		C91870691CCE907500E9555A /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scene.cpp; sourceTree = "<group>"; };
+		C918706A1CCE907500E9555A /* Scene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scene.h; sourceTree = "<group>"; };
+		C918706B1CCE907500E9555A /* Shape.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Shape.cpp; sourceTree = "<group>"; };
+		C918706C1CCE907500E9555A /* Shape.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Shape.h; sourceTree = "<group>"; };
+		C918706D1CCE907500E9555A /* Spring.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Spring.cpp; sourceTree = "<group>"; };
+		C918706E1CCE907500E9555A /* Spring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Spring.h; sourceTree = "<group>"; };
+		C918706F1CCE907500E9555A /* tiny_obj_loader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tiny_obj_loader.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,7 +101,27 @@
 		C90F13031CC750160092ACCB /* MosekTest */ = {
 			isa = PBXGroup;
 			children = (
-				C90F13041CC750160092ACCB /* main.cpp */,
+				C918705C1CCE907500E9555A /* Camera.cpp */,
+				C918705D1CCE907500E9555A /* Camera.h */,
+				C918705E1CCE907500E9555A /* Cloth.cpp */,
+				C918705F1CCE907500E9555A /* Cloth.h */,
+				C91870601CCE907500E9555A /* GLSL.cpp */,
+				C91870611CCE907500E9555A /* GLSL.h */,
+				C91870621CCE907500E9555A /* lo1-old.cpp */,
+				C91870631CCE907500E9555A /* MatrixStack.cpp */,
+				C91870641CCE907500E9555A /* MatrixStack.h */,
+				C91870651CCE907500E9555A /* Particle.cpp */,
+				C91870661CCE907500E9555A /* Particle.h */,
+				C91870671CCE907500E9555A /* Program.cpp */,
+				C91870681CCE907500E9555A /* Program.h */,
+				C91870691CCE907500E9555A /* Scene.cpp */,
+				C918706A1CCE907500E9555A /* Scene.h */,
+				C918706B1CCE907500E9555A /* Shape.cpp */,
+				C918706C1CCE907500E9555A /* Shape.h */,
+				C918706D1CCE907500E9555A /* Spring.cpp */,
+				C918706E1CCE907500E9555A /* Spring.h */,
+				C918706F1CCE907500E9555A /* tiny_obj_loader.h */,
+				C91870441CCE902900E9555A /* main.cpp */,
 			);
 			path = MosekTest;
 			sourceTree = "<group>";
@@ -132,7 +182,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C90F13051CC750160092ACCB /* main.cpp in Sources */,
+				C91870751CCE907500E9555A /* Particle.cpp in Sources */,
+				C91870701CCE907500E9555A /* Camera.cpp in Sources */,
+				C91870711CCE907500E9555A /* Cloth.cpp in Sources */,
+				C91870551CCE902900E9555A /* main.cpp in Sources */,
+				C91870761CCE907500E9555A /* Program.cpp in Sources */,
+				C91870731CCE907500E9555A /* lo1-old.cpp in Sources */,
+				C91870791CCE907500E9555A /* Spring.cpp in Sources */,
+				C91870771CCE907500E9555A /* Scene.cpp in Sources */,
+				C91870781CCE907500E9555A /* Shape.cpp in Sources */,
+				C91870721CCE907500E9555A /* GLSL.cpp in Sources */,
+				C91870741CCE907500E9555A /* MatrixStack.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

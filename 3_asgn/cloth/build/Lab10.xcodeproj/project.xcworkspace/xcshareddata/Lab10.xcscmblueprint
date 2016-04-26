@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "E9594FF3E827AD240D81F5B6B543D799DC0DFD79",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "E9594FF3E827AD240D81F5B6B543D799DC0DFD79" : 0,
+    "7FFF09E064A6C9C134EA92EEE7A44A0EE829DBA1" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "AB85F6DB-94FA-4C5B-A0BA-0013523FD680",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "E9594FF3E827AD240D81F5B6B543D799DC0DFD79" : "animation_grad\/",
+    "7FFF09E064A6C9C134EA92EEE7A44A0EE829DBA1" : "cpe474\/"
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "Lab10",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "3_asgn\/cloth\/build\/Lab10.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/elliotfiske\/animation.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "7FFF09E064A6C9C134EA92EEE7A44A0EE829DBA1"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/elliotfiske\/animation_grad.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E9594FF3E827AD240D81F5B6B543D799DC0DFD79"
+    }
+  ]
+}

@@ -1,5 +1,4 @@
-dependencies: \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/main.cpp \
+dependencies: /Users/elliotfiske/animation_grad/3_asgn/cloth/src/main.cpp \
   /Users/elliotfiske/cpe474/deps/glew-1.13.0/include/GL/glew.h \
   /Users/elliotfiske/cpe474/deps/glfw-3.1.2/include/GLFW/glfw3.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Dense \
@@ -152,9 +151,10 @@ dependencies: \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/RealQZ.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/GLSL.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Program.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Camera.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/MatrixStack.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Shape.h \
-  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Scene.h
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/GLSL.h \
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Program.h \
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Camera.h \
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/MatrixStack.h \
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Shape.h \
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Scene.h \
+  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/mosek_man.h
