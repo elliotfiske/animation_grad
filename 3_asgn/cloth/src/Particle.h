@@ -27,10 +27,10 @@ public:
 	double r; // radius
 	double m; // mass
 	int i;  // starting index
-	Eigen::Vector3d x0; // initial position
-	Eigen::Vector3d v0; // initial velocity
-	Eigen::Vector3d x;  // position
-	Eigen::Vector3d v;  // velocity
+	Eigen::Vector2d x0; // initial position
+	Eigen::Vector2d v0; // initial velocity
+	Eigen::Vector2d x;  // position
+	Eigen::Vector2d v;  // velocity
 	bool fixed;
 	
 private:

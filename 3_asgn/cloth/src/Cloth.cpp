@@ -14,23 +14,19 @@ shared_ptr<Spring> createSpring(const shared_ptr<Particle> p0, const shared_ptr<
 {
 	auto s = make_shared<Spring>(p0, p1);
 	s->E = E;
-	Vector3d x0 = p0->x;
-	Vector3d x1 = p1->x;
-	Vector3d dx = x1 - x0;
+	Vector2d x0 = p0->x;
+	Vector2d x1 = p1->x;
+	Vector2d dx = x1 - x0;
 	s->L = dx.norm();
 	return s;
 }
 
-// At each index N, contains a list of the springs for the Nth particle.
-vector< vector< shared_ptr<Spring> > > all_springs_for_particle;
-vector< vector< shared_ptr<Spring> > > negative_springs_for_particle;
-vector< vector< shared_ptr<Spring> > > positive_springs_for_particle;
 
 Cloth::Cloth(int rows, int cols,
-			 const Vector3d &x00,
-			 const Vector3d &x01,
-			 const Vector3d &x10,
-			 const Vector3d &x11,
+			 const Vector2d &x00,
+			 const Vector2d &x01,
+			 const Vector2d &x10,
+			 const Vector2d &x11,
 			 double mass,
 			 double stiffness,
 			 const Vector2d &damping)
@@ -50,25 +46,25 @@ Cloth::Cloth(int rows, int cols,
 	int nVerts = rows*cols;
 	for(int i = 0; i < rows; ++i) {
 		double u = i / (rows - 1.0);
-		Vector3d x0 = (1 - u)*x00 + u*x10;
-		Vector3d x1 = (1 - u)*x01 + u*x11;
+		Vector2d x0 = (1 - u)*x00 + u*x10;
+		Vector2d x1 = (1 - u)*x01 + u*x11;
 		for(int j = 0; j < cols; ++j) {
 			double v = j / (cols - 1.0);
-			Vector3d x = (1 - v)*x0 + v*x1;
+			Vector2d x = (1 - v)*x0 + v*x1;
 			auto p = make_shared<Particle>();
 			particles.push_back(p);
 			p->r = r;
 			p->x = x;
-			p->v << 0.0, 0.0, 0.0;
+			p->v << 0.0, 0.0;
 			p->m = mass/(nVerts);
 			// Pin two particles
-			if(i == 0 && (j == 0 || j == cols-1)) {
+            if(i == 0 && (j == 0 || j == cols-1)) {
 				p->fixed = true;
 				p->i = -1;
 			} else {
 				p->fixed = false;
 				p->i = n;
-				n += 3;
+				n += 2;
 			}
 		}
 	}
@@ -163,6 +159,8 @@ Cloth::~Cloth()
 {
 }
 
+
+
 void Cloth::tare()
 {
 	for(int k = 0; k < (int)particles.size(); ++k) {
@@ -176,6 +174,7 @@ void Cloth::reset()
 		particles[k]->reset();
 	}
 	updatePosNor();
+    A_trips.clear();
 }
 
 void Cloth::updatePosNor()
@@ -184,10 +183,10 @@ void Cloth::updatePosNor()
 	for(int i = 0; i < rows; ++i) {
 		for(int j = 0; j < cols; ++j) {
 			int k = i*cols + j;
-			Vector3d x = particles[k]->x;
+			Vector2d x = particles[k]->x;
 			posBuf[3*k+0] = x(0);
 			posBuf[3*k+1] = x(1);
-			posBuf[3*k+2] = x(2);
+			posBuf[3*k+2] = 0;
 		}
 	}
 	// Normal
@@ -208,9 +207,9 @@ void Cloth::updatePosNor()
 			int ku1 = k + 1;
 			int kv0 = k - cols;
 			int kv1 = k + cols;
-			Vector3d x = particles[k]->x;
-			Vector3d xu0, xu1, xv0, xv1, dx0, dx1, c;
-			Vector3d nor(0.0, 0.0, 0.0);
+			Vector2d x = particles[k]->x;
+			Vector2d xu0, xu1, xv0, xv1, dx0, dx1, c;
+			Vector2d nor(0.0, 0.0);
 			int count = 0;
 			// Top-right triangle
 			if(j != cols-1 && i != rows-1) {
@@ -218,8 +217,8 @@ void Cloth::updatePosNor()
 				xv1 = particles[kv1]->x;
 				dx0 = xu1 - x;
 				dx1 = xv1 - x;
-				c = dx0.cross(dx1);
-				nor += c.normalized();
+//				c = dx0.cross(dx1);
+//				nor += c.normalized();
 				++count;
 			}
 			// Top-left triangle
@@ -228,8 +227,8 @@ void Cloth::updatePosNor()
 				xv1 = particles[ku0]->x;
 				dx0 = xu1 - x;
 				dx1 = xv1 - x;
-				c = dx0.cross(dx1);
-				nor += c.normalized();
+//				c = dx0.cross(dx1);
+//				nor += c.normalized();
 				++count;
 			}
 			// Bottom-left triangle
@@ -238,8 +237,8 @@ void Cloth::updatePosNor()
 				xv1 = particles[kv0]->x;
 				dx0 = xu1 - x;
 				dx1 = xv1 - x;
-				c = dx0.cross(dx1);
-				nor += c.normalized();
+//				c = dx0.cross(dx1);
+//				nor += c.normalized();
 				++count;
 			}
 			// Bottom-right triangle
@@ -248,29 +247,27 @@ void Cloth::updatePosNor()
 				xv1 = particles[ku1]->x;
 				dx0 = xu1 - x;
 				dx1 = xv1 - x;
-				c = dx0.cross(dx1);
-				nor += c.normalized();
+//				c = dx0.cross(dx1);
+//				nor += c.normalized();
 				++count;
 			}
 			nor /= count;
 			nor.normalize();
 			norBuf[3*k+0] = nor(0);
 			norBuf[3*k+1] = nor(1);
-			norBuf[3*k+2] = nor(2);
+			norBuf[3*k+2] = 0;
 		}
 	}
 }
 
-typedef Eigen::Triplet<double> Trip;
-vector<Trip> A_trips;
 
-// Iterates through a 3x3 matrix and puts all the non-zero
+// Iterates through a 2x2 matrix and puts all the non-zero
 //  entries into the list o' triplets.
 //
 // offset_x and offset_y determine where the matrix is in the super big matrix. ITS LATE OK
-void convert_3x3_mat_to_trips(const Matrix3d &mat, int offset_row, int offset_col) {
-   for (int i = 0; i < 3; i++) {
-      for (int j = 0; j < 3; j++) {
+void Cloth::convert_2x2_mat_to_trips(const Eigen::Matrix2d &mat, int offset_row, int offset_col) {
+   for (int i = 0; i < 2; i++) {
+      for (int j = 0; j < 2; j++) {
          double curr_num = mat(i, j);
          
          if (curr_num != 0) {
@@ -286,6 +283,9 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
 	K.setZero();
 	v.setZero();
 	f.setZero();
+    
+    Vector2d real_grav;
+    real_grav << grav(0), grav(1);
    
    A_trips.clear();
    SparseMatrix<double> A_sparse(n, n);
@@ -298,7 +298,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    for (int ndx = 0; ndx < particles.size(); ndx++) {
       shared_ptr<Particle> p = particles[ndx];
       
-      Matrix3d mini_M = p->m * Matrix3d::Identity();
+      Matrix2d mini_M = p->m * Matrix2d::Identity();
       
       int particle_ndx = p->i;
       if (particle_ndx != -1) {
@@ -306,21 +306,21 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          vector<shared_ptr<Spring> > negative_curr_springs = negative_springs_for_particle[ndx];
          vector<shared_ptr<Spring> > positive_curr_springs = positive_springs_for_particle[ndx];
          
-         Matrix3d diagonal_k;
+         Matrix2d diagonal_k;
          diagonal_k.setZero();
          
          // Check all of the springs attached to the CURRENT PARTICLE
          for (int s_ndx = 0; s_ndx < curr_springs.size(); s_ndx++) {
             shared_ptr<Spring> s = curr_springs[s_ndx];
-            Vector3d dx = s->p1->x - s->p0->x;
+            Vector2d dx = s->p1->x - s->p0->x;
             double l = dx.norm();
             
             double l_L_l = (l - s->L)/l;
             double scalar_thing = (l_L_l * dx.transpose()*dx);
             // "ks" is mini ks block between the current particle and the other particle on the end of the current spring
-            Matrix3d ks = s->E/(l*l) * (
+            Matrix2d ks = s->E/(l*l) * (
                                         (1 - l_L_l) * dx*dx.transpose() +
-                                        scalar_thing * Matrix3d::Identity());
+                                        scalar_thing * Matrix2d::Identity());
             
             ks *= damping[1] * h*h;
             
@@ -339,13 +339,13 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
             //   They're all equal to -ks.
             if (s->p0->i != -1 && s->p1->i != -1) {
                if (s->p0->i > p->i) {
-                  convert_3x3_mat_to_trips(-ks, s->p0->i, p->i);
-                  convert_3x3_mat_to_trips(-ks, p->i, s->p0->i);
+                  convert_2x2_mat_to_trips(-ks, s->p0->i, p->i);
+                  convert_2x2_mat_to_trips(-ks, p->i, s->p0->i);
                }
                
                if (s->p1->i > p->i) {
-                  convert_3x3_mat_to_trips(-ks, s->p1->i, p->i);
-                  convert_3x3_mat_to_trips(-ks, p->i, s->p1->i);
+                  convert_2x2_mat_to_trips(-ks, s->p1->i, p->i);
+                  convert_2x2_mat_to_trips(-ks, p->i, s->p1->i);
                }
             }
          }
@@ -353,22 +353,22 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          
          // Take the diagonal K value and add the Mass to it
          diagonal_k += mini_M + mini_M * damping[0] * h;
-         convert_3x3_mat_to_trips(diagonal_k, p->i, p->i);
+         convert_2x2_mat_to_trips(diagonal_k, p->i, p->i);
          
          // Set the Mv component of b
-         Vector3d mv = mini_M * p->v;
-         b.block<3,1>(particle_ndx, 0) = mv + p->m * grav * h;
+         Vector2d mv = mini_M * p->v;
+         b.block<2,1>(particle_ndx, 0) = mv + p->m * real_grav * h;
          
          // calculate the rest of b with the forces (easy)
          for (int p_ndx = 0; p_ndx < positive_curr_springs.size(); p_ndx++) {
             shared_ptr<Spring> s = positive_curr_springs[p_ndx];
-            Vector3d dx = s->p1->x - s->p0->x;
+            Vector2d dx = s->p1->x - s->p0->x;
             double l = dx.norm();
-            Vector3d fs = s->E * (l - s->L) * dx / l;
+            Vector2d fs = s->E * (l - s->L) * dx / l;
             fs *= h;
             
             if (s->p0->i != -1) {
-               b.block<3, 1>(particle_ndx, 0) += fs;
+               b.block<2, 1>(particle_ndx, 0) += fs;
             }
          }
          
@@ -376,13 +376,13 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          
          for (int n_ndx = 0; n_ndx < negative_curr_springs.size(); n_ndx++) {
             shared_ptr<Spring> s = negative_curr_springs[n_ndx];
-            Vector3d dx = s->p1->x - s->p0->x;
+            Vector2d dx = s->p1->x - s->p0->x;
             double l = dx.norm();
-            Vector3d fs = s->E * (l - s->L) * dx / l;
+            Vector2d fs = s->E * (l - s->L) * dx / l;
             fs *= h;
             
             if (s->p1->i != -1) {
-               b.block<3, 1>(particle_ndx, 0) += -fs;
+               b.block<2, 1>(particle_ndx, 0) += -fs;
             }
          }
       }
@@ -405,7 +405,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       
       int particle_ndx = p->i;
       if (particle_ndx != -1) {
-         p->v = result_v.block<3, 1>(particle_ndx, 0);
+         p->v = result_v.block<2, 1>(particle_ndx, 0);
       }
    }
    
@@ -425,12 +425,12 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
       
       for (int p_ndx = 0; p_ndx < particles.size(); p_ndx++) {
          shared_ptr<Particle> p = particles[p_ndx];
-         Vector3d dx = p->x - collider->x;
+         Vector2d dx = p->x - collider->x;
          double dist = dx.norm();
          if (dist <= p->r + collider->r) {
             p->x = ( (collider->r + p->r) * dx.normalized() + collider->x);
             
-            Vector3d projected = p->v.dot(dx.normalized()) * dx;
+            Vector2d projected = p->v.dot(dx.normalized()) * dx;
             p->v -= projected;
          }
       }

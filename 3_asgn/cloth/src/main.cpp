@@ -27,6 +27,7 @@
 
 using namespace std;
 using namespace Eigen;
+using namespace std::chrono;
 
 bool keyToggles[256] = {false}; // only for English keyboards!
 
@@ -250,7 +251,10 @@ static void MSKAPI printstr(void *handle,
 
 int do_thing()
 {
-    double        c[]   = {0.0,-1.0,0.0};
+    
+    
+    
+    double        f_squiggle[]   = {0.0,-1.0,0.0};
     
     MSKboundkeye  bkc[] = {MSK_BK_LO};
     double        blc[] = {1.0};
@@ -292,6 +296,10 @@ int do_thing()
         
         if ( r==MSK_RES_OK )
         {
+            
+            // Grab clock time BEFORE doing magic multiplication
+            high_resolution_clock::time_point t1 = high_resolution_clock::now();
+            
             r = MSK_linkfunctotaskstream(task,MSK_STREAM_LOG,NULL,printstr);
             
             /* Append 'NUMCON' empty constraints.
@@ -311,7 +319,7 @@ int do_thing()
             {
                 /* Set the linear term c_j in the objective.*/
                 if(r == MSK_RES_OK)
-                    r = MSK_putcj(task,j,c[j]);
+                    r = MSK_putcj(task,j,f_squiggle[j]);
                 
                 /* Set the bounds on variable j.
                  blx[j] <= x_j <= bux[j] */
@@ -364,6 +372,15 @@ int do_thing()
                 
                 /* Run optimizer */
                 r = MSK_optimizetrm(task,&trmcode);
+                
+                
+                
+                // Grab clock time AFTER doing tons of pointless math
+                high_resolution_clock::time_point t2 = high_resolution_clock::now();
+                
+                // Print duration!
+                auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+                cout << "Results: " << duration << " µs" << endl;
                 
                 /* Print a summary containing information
                  about the solution for debugging purposes*/
@@ -425,7 +442,9 @@ int do_thing()
         } 
         MSK_deletetask(&task); 
     } 
-    MSK_deleteenv(&env); 
+    MSK_deleteenv(&env);
+    
+    
     
     return (r);
 }
