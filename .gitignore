@@ -1,0 +1,8 @@
+*.xcuserdatad
+*.orig
+UserInterfaceState.xcuserstate
+*.xcbkptlist
+xcuserdata
+xcuserdata/
+
+.DS_Store
