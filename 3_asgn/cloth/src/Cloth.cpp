@@ -7,7 +7,10 @@
 #include "Program.h"
 #include "GLSL.h"
 
+#include "mosek_man.h"
+
 using namespace std;
+using namespace std::chrono;
 using namespace Eigen;
 
 shared_ptr<Spring> createSpring(const shared_ptr<Particle> p0, const shared_ptr<Particle> p1, double E)
@@ -260,6 +263,18 @@ void Cloth::updatePosNor()
 	}
 }
 
+// Iterate through every particle and check if it's colliding with something
+void Cloth::check_for_collisions() {
+    // Do floor
+    for (int i = 0; i < particles.size(); i++) {
+        particles[i]->colliding = false;
+        if (particles[i]->x(1) < 0) {
+            particles[i]->colliding = true;
+            particles[i]->collision_normal = Vector2d(0.0, 1.0);
+        }
+    }
+}
+
 
 // Iterates through a 2x2 matrix and puts all the non-zero
 //  entries into the list o' triplets.
@@ -387,54 +402,10 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
          }
       }
    }
-
-   VectorXd result_v;
-   result_v.resize(n);
-   
-   A_sparse.setFromTriplets(A_trips.begin(), A_trips.end());
-   
-   ConjugateGradient<SparseMatrix<double> > cg;
-   cg.setMaxIterations(25);
-   cg.setTolerance(1e-3);
-   cg.compute(A_sparse);
-   result_v = cg.solveWithGuess(b, v);
-   
-   // Set each particles' new velocity
-   for (int ndx = 0; ndx < particles.size(); ndx++) {
-      shared_ptr<Particle> p = particles[ndx];
-      
-      int particle_ndx = p->i;
-      if (particle_ndx != -1) {
-         p->v = result_v.block<2, 1>(particle_ndx, 0);
-      }
-   }
-   
-   // Set each particles' new position
-   for (int ndx = 0; ndx < particles.size(); ndx++) {
-      shared_ptr<Particle> p = particles[ndx];
-      
-      int particle_ndx = p->i;
-      if (particle_ndx != -1) {
-         p->x += h * p->v;
-      }
-   }
-   
-   // Check collision
-   for (int ndx = 0; ndx < spheres.size(); ndx++) {
-      shared_ptr<Particle> collider = spheres[ndx];
-      
-      for (int p_ndx = 0; p_ndx < particles.size(); p_ndx++) {
-         shared_ptr<Particle> p = particles[p_ndx];
-         Vector2d dx = p->x - collider->x;
-         double dist = dx.norm();
-         if (dist <= p->r + collider->r) {
-            p->x = ( (collider->r + p->r) * dx.normalized() + collider->x);
-            
-            Vector2d projected = p->v.dot(dx.normalized()) * dx;
-            p->v -= projected;
-         }
-      }
-   }
+    
+    check_for_collisions();
+    
+    solve_with_mosek(h);
 	
 	// Update position and normal buffers
 	updatePosNor();
@@ -495,4 +466,247 @@ void Cloth::draw(shared_ptr<MatrixStack> MV, const shared_ptr<Program> p) const
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	MV->popMatrix();
+}
+
+#define NUMCON 0   /* Number of constraints.             */
+//#define NUMVAR 3   /* Number of variables.               */
+#define NUMANZ 3   /* Number of non-zeros in A.           */
+
+/* This function prints log output from MOSEK to the terminal. */
+static void MSKAPI printstr(void *handle,
+                            MSKCONST char str[])
+{
+    printf("%s",str);
+} /* printstr */
+
+void Cloth::solve_with_mosek(double h) {
+    
+    int num_entries_M = A_trips.size();
+    int NUMVAR = num_entries_M;
+    
+    double        f_squiggle[]   = {0.0,-1.0,0.0};
+    
+    MSKboundkeye  bkc[] = {MSK_BK_LO};
+    double        blc[] = {1.0};
+    double        buc[] = {+MSK_INFINITY};
+    
+    MSKboundkeye  bkx[] = {MSK_BK_LO,
+        MSK_BK_LO,
+        MSK_BK_LO};
+    double        blx[] = {0.0,
+        0.0,
+        0.0};
+    double        bux[] = {+MSK_INFINITY,
+        +MSK_INFINITY,
+        +MSK_INFINITY};
+    
+    MSKint32t     aptrb[] = {0,   1,   2},
+    aptre[] = {1,   2,   3},
+    asub[]  = {0,   0,   0};
+    double        aval[]  = {1.0, 1.0, 1.0};
+    
+    MSKint32t     qsubi[num_entries_M];
+    MSKint32t     qsubj[num_entries_M];
+    double        qval[num_entries_M];
+    
+    MSKint32t     i,j;
+    double        xx[NUMVAR];
+    
+    MSKenv_t      env = NULL;
+    MSKtask_t     task = NULL;
+    MSKrescodee   r;
+    
+    /* Create the mosek environment. */
+    r = MSK_makeenv(&env,NULL);
+    
+    if ( r==MSK_RES_OK )
+    {
+        /* Create the optimization task. */
+        r = MSK_maketask(env,NUMCON,NUMVAR,&task);
+        
+        if ( r==MSK_RES_OK )
+        {
+            
+            // Grab clock time BEFORE doing magic multiplication
+            high_resolution_clock::time_point t1 = high_resolution_clock::now();
+            
+            r = MSK_linkfunctotaskstream(task,MSK_STREAM_LOG,NULL,printstr);
+            
+            /* Append 'NUMCON' empty constraints.
+             The constraints will initially have no bounds. */
+            if ( r == MSK_RES_OK )
+                r = MSK_appendcons(task,NUMCON);
+            
+            /* Append 'NUMVAR' variables.
+             The variables will initially be fixed at zero (x=0). */
+            if ( r == MSK_RES_OK )
+                r = MSK_appendvars(task,NUMVAR);
+            
+            /* Optionally add a constant term to the objective. */
+//            if ( r ==MSK_RES_OK )
+//                r = MSK_putcfix(task,0.0);
+            
+            for(j=0; j<f.rows() && r == MSK_RES_OK; ++j)
+            {
+                /* Set the linear term c_j in the objective.*/
+                if(r == MSK_RES_OK)
+                    r = MSK_putcj(task,j,f(j));
+                
+                /* Set the bounds on variable j.
+                 blx[j] <= x_j <= bux[j] */
+//                if(r == MSK_RES_OK)
+//                    r = MSK_putvarbound(task,
+//                                        j,           /* Index of variable.*/
+//                                        bkx[j],      /* Bound key.*/
+//                                        blx[j],      /* Numerical value of lower bound.*/
+//                                        bux[j]);     /* Numerical value of upper bound.*/
+                
+                /* Input column j of A */
+//                if(r == MSK_RES_OK)
+//                    r = MSK_putacol(task,
+//                                    j,                 /* Variable (column) index.*/
+//                                    aptre[j]-aptrb[j], /* Number of non-zeros in column j.*/
+//                                    asub+aptrb[j],     /* Pointer to row indexes of column j.*/
+//                                    aval+aptrb[j]);    /* Pointer to Values of column j.*/
+                
+            }
+            
+            /* Set the bounds on constraints.
+             for i=1, ...,NUMCON : blc[i] <= constraint i <= buc[i] */
+//            for(i=0; i<NUMCON && r==MSK_RES_OK; ++i)
+//                r = MSK_putconbound(task,
+//                                    i,           /* Index of constraint.*/
+//                                    bkc[i],      /* Bound key.*/
+//                                    blc[i],      /* Numerical value of lower bound.*/
+//                                    buc[i]);     /* Numerical value of upper bound.*/
+            
+            if ( r==MSK_RES_OK )
+            {
+                /*
+                 * The lower triangular part of the Q
+                 * matrix in the objective is specified.
+                 */
+                
+                for (int ndx = 0; ndx < A_trips.size(); ndx++) {
+                    if (A_trips[ndx].row() >= A_trips[ndx].col()) {
+                        qsubi[ndx] = A_trips[ndx].row();
+                        qsubj[ndx] = A_trips[ndx].col();
+                        qval[ndx] += 0.5 * A_trips[ndx].value();
+                    }
+                    else {
+                        qsubi[ndx] = A_trips[ndx].col();
+                        qsubj[ndx] = A_trips[ndx].row();
+                        qval[ndx] += 0.5 * A_trips[ndx].value();
+                    }
+                }
+                
+//                qsubi[0] = 0;   qsubj[0] = 0;  qval[0] = 2.0;
+//                qsubi[1] = 1;   qsubj[1] = 1;  qval[1] = 0.2;
+//                qsubi[2] = 2;   qsubj[2] = 0;  qval[2] = -1.0;
+//                qsubi[3] = 2;   qsubj[3] = 2;  qval[3] = 2.0;
+                
+                /* Input the Q for the objective. */
+                
+                r = MSK_putqobj(task,num_entries_M,qsubi,qsubj,qval);
+            }
+            
+            if ( r==MSK_RES_OK )
+            {
+                MSKrescodee trmcode;
+                
+                /* Run optimizer */
+                r = MSK_optimizetrm(task,&trmcode);
+                
+                // Grab clock time AFTER doing tons of pointless math
+                high_resolution_clock::time_point t2 = high_resolution_clock::now();
+                
+                // Print duration!
+                auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+                cout << "Results: " << duration << " µs" << endl;
+                
+                /* Print a summary containing information
+                 about the solution for debugging purposes*/
+//                MSK_solutionsummary (task,MSK_STREAM_MSG);
+                
+                if ( r==MSK_RES_OK )
+                {
+                    MSKsolstae solsta;
+                    int j;
+                    
+                    MSK_getsolsta (task,MSK_SOL_ITR,&solsta);
+                    
+                    switch(solsta)
+                    {
+                        case MSK_SOL_STA_OPTIMAL:
+                        case MSK_SOL_STA_NEAR_OPTIMAL:
+                            MSK_getxx(task,
+                                      MSK_SOL_ITR,    /* Request the interior solution. */
+                                      xx);
+                            
+                            printf("Optimal primal solution\n");
+//                            for(j=0; j<NUMVAR; ++j)
+//                                printf("x[%d]: %e\n",j,xx[j]);
+                            
+                            break;
+                        case MSK_SOL_STA_DUAL_INFEAS_CER:
+                        case MSK_SOL_STA_PRIM_INFEAS_CER:
+                        case MSK_SOL_STA_NEAR_DUAL_INFEAS_CER:
+                        case MSK_SOL_STA_NEAR_PRIM_INFEAS_CER:
+                            printf("Primal or dual infeasibility certificate found.\n");
+                            break;
+                            
+                        case MSK_SOL_STA_UNKNOWN:
+                            printf("The status of the solution could not be determined.\n");
+                            break;
+                        default:
+                            printf("Other solution status.");
+                            break;
+                    }
+                }
+                else
+                {
+                    printf("Error while optimizing.\n");
+                }
+            }
+            
+            if (r != MSK_RES_OK)
+            {
+                /* In case of an error print error code and description. */
+                char symname[MSK_MAX_STR_LEN];
+                char desc[MSK_MAX_STR_LEN];
+                
+                printf("An error occurred while optimizing.\n");
+                MSK_getcodedesc (r,
+                                 symname,
+                                 desc);
+                printf("Error %s - '%s'\n",symname,desc);
+            }
+        }
+        MSK_deletetask(&task);
+    }
+    MSK_deleteenv(&env);
+
+    
+    
+    // Set each particles' new velocity
+    for (int ndx = 0; ndx < particles.size(); ndx++) {
+        shared_ptr<Particle> p = particles[ndx];
+        
+        int particle_ndx = p->i;
+        if (particle_ndx != -1) {
+            p->v(0) = xx[particle_ndx];
+            p->v(1) = xx[particle_ndx + 1];
+//            p->v = result_v.block<2, 1>(particle_ndx, 0);
+        }
+    }
+    
+    // Set each particles' new position
+    for (int ndx = 0; ndx < particles.size(); ndx++) {
+        shared_ptr<Particle> p = particles[ndx];
+        
+        int particle_ndx = p->i;
+        if (particle_ndx != -1) {
+            p->x += h * p->v;
+        }
+    }
 }

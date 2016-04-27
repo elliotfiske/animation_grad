@@ -66,6 +66,11 @@ private:
     
     // My list of entries in the sparse matrix
     std::vector<Trip> A_trips;
+
+    std::vector<Particle> colliding_particles;
+    void check_for_collisions();
+    
+    void solve_with_mosek(double h);
     
 	unsigned eleBufID;
 	unsigned posBufID;

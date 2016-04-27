@@ -32,6 +32,9 @@ public:
 	Eigen::Vector2d x;  // position
 	Eigen::Vector2d v;  // velocity
 	bool fixed;
+    
+    bool colliding; // Am I colliding?
+    Eigen::Vector2d collision_normal; // What direction is the collision pointing?
 	
 private:
 	const std::shared_ptr<Shape> sphere;
