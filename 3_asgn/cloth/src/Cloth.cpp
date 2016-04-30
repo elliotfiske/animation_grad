@@ -482,7 +482,7 @@ static void MSKAPI printstr(void *handle,
 void Cloth::solve_with_mosek(double h) {
     
     int num_entries_M = A_trips.size();
-    int NUMVAR = num_entries_M;
+    int NUMVAR = f.rows();
     
     double        f_squiggle[]   = {0.0,-1.0,0.0};
     
@@ -534,8 +534,8 @@ void Cloth::solve_with_mosek(double h) {
             
             /* Append 'NUMCON' empty constraints.
              The constraints will initially have no bounds. */
-            if ( r == MSK_RES_OK )
-                r = MSK_appendcons(task,NUMCON);
+//            if ( r == MSK_RES_OK )
+//                r = MSK_appendcons(task,NUMVAR);
             
             /* Append 'NUMVAR' variables.
              The variables will initially be fixed at zero (x=0). */
@@ -554,13 +554,13 @@ void Cloth::solve_with_mosek(double h) {
                 
                 /* Set the bounds on variable j.
                  blx[j] <= x_j <= bux[j] */
-//                if(r == MSK_RES_OK)
-//                    r = MSK_putvarbound(task,
-//                                        j,           /* Index of variable.*/
-//                                        bkx[j],      /* Bound key.*/
-//                                        blx[j],      /* Numerical value of lower bound.*/
-//                                        bux[j]);     /* Numerical value of upper bound.*/
-                
+                if(r == MSK_RES_OK)
+                    r = MSK_putvarbound(task,
+                                        j,           /* Index of variable.*/
+                                        MSK_BK_LO,        //bkx[j],      /* Bound key.*/
+                                        -100.0,              //blx[j],      /* Numerical value of lower bound.*/
+                                        +MSK_INFINITY);   //bux[j]);     /* Numerical value of upper bound.*/
+
                 /* Input column j of A */
 //                if(r == MSK_RES_OK)
 //                    r = MSK_putacol(task,
@@ -587,15 +587,10 @@ void Cloth::solve_with_mosek(double h) {
                  * matrix in the objective is specified.
                  */
                 
-                for (int ndx = 0; ndx < A_trips.size(); ndx++) {
+                for (int ndx = 0; ndx < A_trips.size (); ndx++) {
                     if (A_trips[ndx].row() >= A_trips[ndx].col()) {
                         qsubi[ndx] = A_trips[ndx].row();
                         qsubj[ndx] = A_trips[ndx].col();
-                        qval[ndx] += 0.5 * A_trips[ndx].value();
-                    }
-                    else {
-                        qsubi[ndx] = A_trips[ndx].col();
-                        qsubj[ndx] = A_trips[ndx].row();
                         qval[ndx] += 0.5 * A_trips[ndx].value();
                     }
                 }
@@ -631,7 +626,7 @@ void Cloth::solve_with_mosek(double h) {
                 if ( r==MSK_RES_OK )
                 {
                     MSKsolstae solsta;
-                    int j;
+//                    int j;
                     
                     MSK_getsolsta (task,MSK_SOL_ITR,&solsta);
                     

@@ -453,7 +453,7 @@ int do_thing()
 
 int main(int argc, char **argv)
 {
-   do_thing();
+//   do_thing();
    
 	if(argc < 2) {
 		cout << "Please specify the resource directory." << endl;

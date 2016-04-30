@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/Cloth.cpp"
-            timestampString = "483434234.209142"
+            timestampString = "483468796.445175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "354"
-            endingLineNumber = "354"
+            startingLineNumber = "366"
+            endingLineNumber = "366"
             landmarkName = "Cloth::step(double h, const Vector3d &amp;grav, const vector&lt; shared_ptr&lt;Particle&gt; &gt; spheres)"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/Cloth.cpp"
-            timestampString = "483434234.209142"
+            timestampString = "483468796.445175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "280"
-            endingLineNumber = "280"
+            startingLineNumber = "292"
+            endingLineNumber = "292"
             landmarkName = "Cloth::convert_2x2_mat_to_trips(const Eigen::Matrix2d &amp;mat, int offset_row, int offset_col)"
             landmarkType = "5">
          </BreakpointContent>
@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/Cloth.cpp"
-            timestampString = "483434234.209142"
+            timestampString = "483468796.445175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "281"
-            endingLineNumber = "281"
+            startingLineNumber = "293"
+            endingLineNumber = "293"
             landmarkName = "Cloth::convert_2x2_mat_to_trips(const Eigen::Matrix2d &amp;mat, int offset_row, int offset_col)"
             landmarkType = "5">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/Cloth.cpp"
-            timestampString = "483434234.209142"
+            timestampString = "483468796.445175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "391"
-            endingLineNumber = "391"
+            startingLineNumber = "403"
+            endingLineNumber = "403"
             landmarkName = "Cloth::step(double h, const Vector3d &amp;grav, const vector&lt; shared_ptr&lt;Particle&gt; &gt; spheres)"
             landmarkType = "5">
          </BreakpointContent>
@@ -74,11 +74,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/Cloth.cpp"
-            timestampString = "483434234.209142"
+            timestampString = "483468796.445175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "301"
-            endingLineNumber = "301"
+            startingLineNumber = "313"
+            endingLineNumber = "313"
             landmarkName = "Cloth::step(double h, const Vector3d &amp;grav, const vector&lt; shared_ptr&lt;Particle&gt; &gt; spheres)"
             landmarkType = "5">
          </BreakpointContent>
@@ -136,11 +136,27 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "src/Cloth.cpp"
-            timestampString = "483434829.725694"
+            timestampString = "483468796.445175"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "470"
-            endingLineNumber = "470"
+            startingLineNumber = "484"
+            endingLineNumber = "484"
+            landmarkName = "Cloth::solve_with_mosek(double h)"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "src/Cloth.cpp"
+            timestampString = "483470064.772655"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "558"
+            endingLineNumber = "558"
             landmarkName = "Cloth::solve_with_mosek(double h)"
             landmarkType = "5">
          </BreakpointContent>
