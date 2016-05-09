@@ -30,11 +30,16 @@ public:
    std::shared_ptr<Link> parent;
    std::vector<std::shared_ptr<Link> > children;
    
+   // Rigid transform
+   Eigen::Matrix4d curr_E;
+   
+   // For now, just the rotation around the Z axis
    float angle;
     
-   Eigen::Vector3f position;
+   Eigen::Vector3d position;
    
    void draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape);
+   void step(double h);
    
    // What shape to draw when we draw this Link
    static std::shared_ptr<Shape> shape;

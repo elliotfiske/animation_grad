@@ -149,6 +149,9 @@ static void init()
 
 void render()
 {
+   // Step the link. NOTE: this is BAD you shouldn't update in the render loop.
+   root_link->step(0.016);
+   
 	// Get current frame buffer size.
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
