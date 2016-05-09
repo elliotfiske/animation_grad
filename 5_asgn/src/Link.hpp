@@ -32,6 +32,7 @@ public:
    
    // Rigid transform
    Eigen::Matrix4d curr_E;
+   Eigen::VectorXd curr_phi;
    
    // For now, just the rotation around the Z axis
    float angle;

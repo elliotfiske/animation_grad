@@ -2,6 +2,7 @@
 #ifndef _RIGID_H_
 #define _RIGID_H_
 
+#define EIGEN_DONT_ALIGN_STATICALLY
 #include <Eigen/Dense>
 
 typedef Eigen::Matrix<double, 6, 1> Vector6d;
