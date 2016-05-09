@@ -32,7 +32,7 @@ public:
 	void tare();
 	void reset();
 	void updatePosNor();
-	void step(double h, const Eigen::Vector3d &grav, const std::vector< std::shared_ptr<Particle> > spheres);
+	void step(double h, const Eigen::Vector3d &grav, const std::vector< std::shared_ptr<Particle> > spheres, bool do_collisions);
 	
    void circle_constraint();
    void fake_pinning();

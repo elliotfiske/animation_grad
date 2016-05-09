@@ -1,6 +1,6 @@
 dependencies: \
-  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Scene.cpp \
-  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Scene.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Scene.cpp \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Scene.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Dense \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Core \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Core/util/DisableStupidWarnings.h \
@@ -151,8 +151,8 @@ dependencies: \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/RealQZ.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/GeneralizedEigenSolver.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
-  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Particle.h \
-  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Cloth.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Particle.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Cloth.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/Sparse \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/SparseCore \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/SparseCore/SparseUtil.h \
@@ -221,6 +221,6 @@ dependencies: \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/IterativeLinearSolvers/ConjugateGradient.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/IterativeLinearSolvers/BiCGSTAB.h \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/IterativeLinearSolvers/IncompleteLUT.h \
-  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Shape.h \
-  /Users/elliotfiske/animation_grad/3_asgn/cloth/src/Program.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Shape.h \
+  /Users/elliotfiske/animation_grad/1_asgn/cloth\ dense/src/Program.h \
   /Users/elliotfiske/cpe474/deps/glew-1.13.0/include/GL/glew.h

@@ -122,6 +122,7 @@ static void init()
 	scene->load(RESOURCE_DIR);
 	scene->tare();
 	scene->init();
+    scene->toggles = keyToggles;
 	
 	// If there were any OpenGL errors, this will print something.
 	// You can intersperse this line in your code to find the exact location

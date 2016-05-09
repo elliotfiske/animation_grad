@@ -74,19 +74,32 @@ void Scene::step()
 {
 	t += h;
 	
-	// Move the sphere
-	if(!spheres.empty()) {
-		auto s = spheres.front();
-		Vector3d x0 = s->x;
-		double radius = 0.5;
-		double a = 2.0*t;
-		s->x(2) = radius * sin(a);
-		Vector3d dx = s->x - x0;
-		s->v = dx/h;
-	}
+   // Move the sphere
+   if(!spheres.empty()) {
+      auto s = spheres.front();
+      s->lagrange_step(h);
+      
+      // Get euler coords from the theta coords
+      double r = 0.5;
+      double x =  cos(s->theta) * r;
+      double y = -sin(s->theta) * r + 0.75;
+      double dx =  cos(s->d_theta) * r;
+      double dy = -sin(s->d_theta) * r;
+      
+      s->x = Vector3d(0, y, x);
+      s->v = Vector3d(0, dy, dx);
+      
+      //		Vector3d x0 = s->x;
+      //		double radius = 0.5;
+      //		double a = 2.0*t;
+      //		s->x(2) = radius * sin(a);
+      //		Vector3d dx = s->x - x0;
+      //		s->v = dx/h;
+   }
 	
 	// Simulate the cloth
-	cloth->step(h, grav, spheres);
+    bool do_collision = toggles[(unsigned) 'c'];
+	cloth->step(h, grav, spheres, do_collision);
 }
 
 void Scene::draw(shared_ptr<MatrixStack> MV, const shared_ptr<Program> prog) const

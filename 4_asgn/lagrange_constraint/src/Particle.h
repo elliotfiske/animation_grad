@@ -33,6 +33,12 @@ public:
 	Eigen::Vector3d v;  // velocity
 	bool fixed;
 	
+    
+    // MY STUFF
+    double theta;
+    double d_theta;
+    void lagrange_step(double h);
+    
 private:
 	const std::shared_ptr<Shape> sphere;
 };

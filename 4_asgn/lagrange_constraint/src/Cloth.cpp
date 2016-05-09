@@ -257,7 +257,7 @@ void Cloth::updatePosNor()
 	}
 }
 
-void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Particle> > spheres)
+void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Particle> > spheres, bool do_collisions)
 {
 	M.setZero();
 	K.setZero();
@@ -325,8 +325,14 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    VectorXd b;
    b = M*v + h*f;
 //   b.block<3, 1>(n, 0) = spheres[0]->v;
-   b(n+1, 0) = spheres[0]->v(2);
-   b(n+4, 0) = spheres[0]->v(2);
+   b(n, 0) = 0;
+   b(n+1, 0) = spheres[0]->v(1);
+   b(n+2, 0) = spheres[0]->v(2);
+    
+    printf("v1: %f v2: %f\n", spheres[0]->v(1), spheres[0]->v(2));
+    b(n+3, 0) = 0;
+   b(n+4, 0) = spheres[0]->v(1);
+   b(n+5, 0) = spheres[0]->v(2);
    
    VectorXd result_v;
    result_v = A.ldlt().solve(b);
@@ -352,18 +358,20 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    }
    
    // Check collision
-   for (int ndx = 0; ndx < spheres.size(); ndx++) {
-      shared_ptr<Particle> collider = spheres[ndx];
-      
-      for (int p_ndx = 0; p_ndx < particles.size(); p_ndx++) {
-         shared_ptr<Particle> p = particles[p_ndx];
-         Vector3d dx = p->x - collider->x;
-         double dist = dx.norm();
-         if (dist <= p->r + collider->r) {
-            p->x = ( (collider->r + p->r) * dx.normalized() + collider->x);
-            
-            Vector3d projected = p->v.dot(dx.normalized()) * dx;
-            p->v -= projected;
+   if (do_collisions) {
+      for (int ndx = 0; ndx < spheres.size(); ndx++) {
+         shared_ptr<Particle> collider = spheres[ndx];
+         
+         for (int p_ndx = 0; p_ndx < particles.size(); p_ndx++) {
+            shared_ptr<Particle> p = particles[p_ndx];
+            Vector3d dx = p->x - collider->x;
+            double dist = dx.norm();
+            if (dist <= p->r + collider->r) {
+               p->x = ( (collider->r + p->r) * dx.normalized() + collider->x);
+               
+               Vector3d projected = p->v.dot(dx.normalized()) * dx;
+               p->v -= projected;
+            }
          }
       }
    }

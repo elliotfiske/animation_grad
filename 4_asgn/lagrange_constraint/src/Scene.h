@@ -32,6 +32,8 @@ public:
 	void draw(std::shared_ptr<MatrixStack> MV, const std::shared_ptr<Program> prog) const;
 	
 	double getTime() const { return t; }
+    
+    bool *toggles;
 	
 private:
 	double t;
