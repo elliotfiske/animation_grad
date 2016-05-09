@@ -36,8 +36,8 @@ Link::Link()
    
    // Start angular velocity as 0, 0, 2.0
    // and positional velocity as -1, 0, 0
-   Vector3d w( 0, 0, 2.0);
-   Vector3d v(-1, 0, 0);
+   Vector3d w( 1.0, 0, 2.0);
+   Vector3d v(-1, 2.0, 0);
    
    curr_phi.resize(6);
    curr_phi << w(0), w(1), w(2), v(0), v(1), v(2);
@@ -66,8 +66,11 @@ void Link::step(double h) {
    Mi(4, 4) = m;
    Mi(5, 5) = m;
    
-   Vector6d fg;
-   fg << 0, 0, 0, 0.0, -2.0, 0.0;
+   Vector4d world_gravity(0, -2.0, 0, 0);
+   Vector4d local_gravity = curr_E.transpose() * world_gravity;
+   
+   Vector6d fg = VectorXd::Zero(6);
+   fg.segment(3, 3) = local_gravity.segment(0, 3);
    
    // Solve Ax = b where A = Mi
    // and b is this huge thing from the worksheet
