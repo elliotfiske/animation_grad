@@ -34,16 +34,15 @@ Link::~Link()
 
 // Push this object's matrices onto the stack and draw it
 void Link::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape) {
-   Affine3f to_parent(Translation3f(parent_offset, 0, 0));
-   Matrix4f i_to_p_E = to_parent.matrix();
+   Affine3f transformation_to_world(Translation3f(position(0), position(1), position(2)));
+   Matrix4f i_to_world_E = transformation_to_world.matrix();
    Matrix3f rot_matrix = AngleAxisf(angle, Vector3f::UnitZ()).matrix();
-   i_to_p_E.block<3,3>(0,0) = rot_matrix;
+   i_to_world_E.block<3,3>(0,0) = rot_matrix;
    
    M->pushMatrix();
-   M->multMatrix(i_to_p_E);
    
+   M->multMatrix(i_to_world_E);
    glUniformMatrix4fv(prog->getUniform("MV"), 1, GL_FALSE, M->topMatrix().data());
-   
    shape->draw(prog);
    
    M->popMatrix();

@@ -6,3 +6,7 @@ xcuserdata
 xcuserdata/
 
 .DS_Store
+
+*.o
+dpgh
+*.dat
