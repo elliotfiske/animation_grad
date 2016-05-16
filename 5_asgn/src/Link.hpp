@@ -41,6 +41,8 @@ public:
    
    void draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape);
    void step(double h);
+   void do_collision();
+   void check_corner(double x_offset, double y_offset, double z_offset);
    
    // What shape to draw when we draw this Link
    static std::shared_ptr<Shape> shape;

@@ -131,7 +131,7 @@ static void init()
 	texture->init();
 	
 	shape = make_shared<Shape>();
-	shape->loadMesh(RESOURCE_DIR + "link.obj");
+	shape->loadMesh(RESOURCE_DIR + "cube.obj");
 	shape->init();
    
     root_link = make_shared<Link>();
@@ -190,14 +190,15 @@ void render()
 	glLineWidth(2.0f);
 	float x0 = -2.0f;
 	float x1 = 2.0f;
-	float y0 = -2.0f;
-	float y1 = 2.0f;
+	float z0 = -2.0f;
+	float z1 = 2.0f;
+    float y = -2.0f;
 	glColor3f(0.2f, 0.2f, 0.2f);
 	glBegin(GL_LINE_LOOP);
-	glVertex2f(x0, y0);
-	glVertex2f(x1, y0);
-	glVertex2f(x1, y1);
-	glVertex2f(x0, y1);
+	glVertex3f(x0, y, z0);
+	glVertex3f(x1, y, z0);
+	glVertex3f(x1, y, z1);
+	glVertex3f(x0, y, z1);
 	glEnd();
 	int gridSize = 8;
 	glLineWidth(1.0f);
@@ -209,8 +210,8 @@ void render()
 			glColor3f(0.8f, 0.8f, 0.8f);
 		}
 		float x = x0 + i / (float)gridSize * (x1 - x0);
-		glVertex2f(x, y0);
-		glVertex2f(x, y1);
+		glVertex3f(x, y, z0);
+		glVertex3f(x, y, z1);
 	}
 	for(int i = 1; i < gridSize; ++i) {
 		if(i == gridSize/2) {
@@ -218,9 +219,9 @@ void render()
 		} else {
 			glColor3f(0.8f, 0.8f, 0.8f);
 		}
-		float y = y0 + i / (float)gridSize * (y1 - y0);
-		glVertex2f(x0, y);
-		glVertex2f(x1, y);
+		float z = z0 + i / (float)gridSize * (z1 - z0);
+		glVertex3f(x0, y, z);
+        glVertex3f(x1, y, z);
 	}
 	glEnd();
 	progSimple->unbind();

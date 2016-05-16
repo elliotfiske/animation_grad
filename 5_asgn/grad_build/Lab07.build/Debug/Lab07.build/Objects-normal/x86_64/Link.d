@@ -156,4 +156,5 @@ dependencies: /Users/elliotfiske/animation_grad/5_asgn/src/Link.cpp \
   /Users/elliotfiske/cpe474/deps/glew-1.13.0/include/GL/glew.h \
   /Users/elliotfiske/cpe474/deps/glfw-3.1.2/include/GLFW/glfw3.h \
   /Users/elliotfiske/animation_grad/5_asgn/src/GLSL.h \
-  /Users/elliotfiske/animation_grad/5_asgn/src/Program.h
+  /Users/elliotfiske/animation_grad/5_asgn/src/Program.h \
+  /Users/elliotfiske/animation_grad/5_asgn/src/mosek_man.h

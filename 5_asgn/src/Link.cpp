@@ -15,6 +15,7 @@
 
 #include "GLSL.h"
 #include "Program.h"
+#include "mosek_man.h"
 
 using namespace Eigen;
 using namespace std;
@@ -45,6 +46,33 @@ Link::Link()
 
 Link::~Link()
 {
+}
+
+void Link::check_corner(double x_offset, double y_offset, double z_offset) {
+    // The vector (x, y, z) is in model-space, I want to convert it to
+    //  world space
+    Vector4d xi;
+    xi << x_offset, y_offset, z_offset, 1.0;
+    xi = curr_E * xi;
+    
+    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
+    
+    // Check if the point is below the water level
+    if (xi(1) < -2.0) {
+        printf("Hey it's colliding");
+    }
+}
+
+void Link::do_collision() {
+    // Check each corner of me for a collision
+    check_corner(-1, -1, -1);
+    check_corner(-1, -1,  1);
+    check_corner(-1,  1, -1);
+    check_corner(-1,  1,  1);
+    check_corner( 1, -1, -1);
+    check_corner( 1, -1,  1);
+    check_corner( 1,  1, -1);
+    check_corner( 1,  1,  1);
 }
 
 // Move a link via its angular and positional velocity
@@ -79,10 +107,12 @@ void Link::step(double h) {
    
    curr_phi = Mi.ldlt().solve(b);
    
-   printf("%f, %f, %f, %f, %f, %f\n", curr_phi(0), curr_phi(1), curr_phi(2), curr_phi(3), curr_phi(4), curr_phi(5));
+//   printf("%f, %f, %f, %f, %f, %f\n", curr_phi(0), curr_phi(1), curr_phi(2), curr_phi(3), curr_phi(4), curr_phi(5));
 
    Matrix4d next_E = integrate(curr_E, curr_phi, h);
    curr_E = next_E;
+    
+    do_collision();
 }
 
 // Push this object's matrices onto the stack and draw it
@@ -95,11 +125,6 @@ void Link::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::
    position += curr_phi.segment(3, 3) * 0.1;
    
    angle += curr_phi(2) * 0.1;
-   
-//   Matrix3d rot_matrix = AngleAxisd(angle, Vector3d::UnitZ()).matrix();
-//   curr_E.block<3,3>(0,0) = rot_matrix;
-//   
-//   M->translate(position.cast<float>());
    
    M->multMatrix(curr_E.cast<float>());
    glUniformMatrix4fv(prog->getUniform("MV"), 1, GL_FALSE, M->topMatrix().data());

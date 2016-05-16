@@ -74,6 +74,8 @@
 		936BC748340148719D1888A5 /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = A3E742571AF44501831E5416 /* input.c */; settings = {COMPILER_FLAGS = ""; }; };
 		9FEBAE3A776C4CA68B747EB8 /* monitor.c in Sources */ = {isa = PBXBuildFile; fileRef = 1901179CB02D4E72BD96D7CC /* monitor.c */; settings = {COMPILER_FLAGS = ""; }; };
 		C93AF6581CE0279800DDE9E3 /* Rigid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AF6551CE020C800DDE9E3 /* Rigid.cpp */; };
+		C96A4BA71CE931F6006BA95B /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A4BA51CE931F6006BA95B /* libmosek64.7.1.dylib */; };
+		C96A4BA81CE931F6006BA95B /* libmosekxx7_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A4BA61CE931F6006BA95B /* libmosekxx7_1.dylib */; };
 		DEC438F848A549CBB985A96A /* context.c in Sources */ = {isa = PBXBuildFile; fileRef = CD59967A2D8B4D6AA7FD8679 /* context.c */; settings = {COMPILER_FLAGS = ""; }; };
 		DED27A65077F4B3E8B1FEC4B /* cocoa_monitor.m in Sources */ = {isa = PBXBuildFile; fileRef = F344D3DAE802458DAB330A6A /* cocoa_monitor.m */; settings = {COMPILER_FLAGS = ""; }; };
 		EB89812450BC4688813AB225 /* GLSL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5145CCAF2FF04C268361F91A /* GLSL.cpp */; settings = {COMPILER_FLAGS = ""; }; };
@@ -172,6 +174,9 @@
 		C93AF6551CE020C800DDE9E3 /* Rigid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rigid.cpp; path = src/Rigid.cpp; sourceTree = "<group>"; };
 		C93AF6561CE020D100DDE9E3 /* Link.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Link.hpp; path = src/Link.hpp; sourceTree = "<group>"; };
 		C93AF6571CE020D100DDE9E3 /* Rigid.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Rigid.h; path = src/Rigid.h; sourceTree = "<group>"; };
+		C96A4BA51CE931F6006BA95B /* libmosek64.7.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosek64.7.1.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libmosek64.7.1.dylib; sourceTree = "<group>"; };
+		C96A4BA61CE931F6006BA95B /* libmosekxx7_1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmosekxx7_1.dylib; path = ../../mosek/7/tools/platform/osx64x86/bin/libmosekxx7_1.dylib; sourceTree = "<group>"; };
+		C96A4BAA1CE9323D006BA95B /* mosek_man.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mosek_man.h; path = src/mosek_man.h; sourceTree = "<group>"; };
 		CB6403040B1E483587BD04E2 /* Camera.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 4; name = Camera.cpp; path = src/Camera.cpp; sourceTree = SOURCE_ROOT; };
 		CD59967A2D8B4D6AA7FD8679 /* context.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.c; fileEncoding = 4; name = context.c; path = "../../cpe474/deps/glfw-3.1.2/src/context.c"; sourceTree = SOURCE_ROOT; };
 		D42714E67E55408DB50477B4 /* cocoa_window.m */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 4; name = cocoa_window.m; path = "../../cpe474/deps/glfw-3.1.2/src/cocoa_window.m"; sourceTree = SOURCE_ROOT; };
@@ -186,6 +191,18 @@
 		FCBDC5F5B1994980862205A6 /* iokit_joystick.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = iokit_joystick.h; path = "../../cpe474/deps/glfw-3.1.2/src/iokit_joystick.h"; sourceTree = SOURCE_ROOT; };
 		FF32D8A50C8C4822AEC1702C /* posix_tls.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = posix_tls.h; path = "../../cpe474/deps/glfw-3.1.2/src/posix_tls.h"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		C96A4BA41CE931DA006BA95B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C96A4BA71CE931F6006BA95B /* libmosek64.7.1.dylib in Frameworks */,
+				C96A4BA81CE931F6006BA95B /* libmosekxx7_1.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		073A0762FB7746579ADDE381 /* Source Files */ = {
@@ -283,6 +300,7 @@
 		91177EFE3D884C7881A5CCD9 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				C96A4BAA1CE9323D006BA95B /* mosek_man.h */,
 				C93AF6561CE020D100DDE9E3 /* Link.hpp */,
 				C93AF6571CE020D100DDE9E3 /* Rigid.h */,
 				D6F2234779A846919127EC00 /* Camera.h */,
@@ -367,6 +385,8 @@
 		FB3F50B943AC4D2B9070CB3C = {
 			isa = PBXGroup;
 			children = (
+				C96A4BA51CE931F6006BA95B /* libmosek64.7.1.dylib */,
+				C96A4BA61CE931F6006BA95B /* libmosekxx7_1.dylib */,
 				5718059B76A54E92B8F877EF /* Sources */,
 				671D97D0C2644607A2CB0383 /* Resources */,
 				956DD8AE54754FD988D695C0 /* Products */,
@@ -397,6 +417,7 @@
 			buildConfigurationList = 639722F1A1224E9AB4E102CE /* Build configuration list for PBXNativeTarget "Lab07" */;
 			buildPhases = (
 				6FE9B51401A04249B51D7E7C /* Sources */,
+				C96A4BA41CE931DA006BA95B /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -579,7 +600,7 @@
 					"/Users/elliotfiske/cpe474/deps/glew-1.13.0/include",
 				);
 				INSTALL_PATH = "";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = /Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin;
 				OTHER_CFLAGS = "    -DNDEBUG  ";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-std=c++0x",
@@ -1082,7 +1103,7 @@
 					"/Users/elliotfiske/cpe474/deps/glew-1.13.0/include",
 				);
 				INSTALL_PATH = "";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = /Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin;
 				OTHER_CFLAGS = "    -DNDEBUG  ";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-std=c++0x",
@@ -1213,7 +1234,7 @@
 					"/Users/elliotfiske/cpe474/deps/glew-1.13.0/include",
 				);
 				INSTALL_PATH = "";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = /Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin;
 				OTHER_CFLAGS = "    ";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-std=c++0x",
@@ -1285,7 +1306,7 @@
 					"/Users/elliotfiske/cpe474/deps/glew-1.13.0/include",
 				);
 				INSTALL_PATH = "";
-				LIBRARY_SEARCH_PATHS = "";
+				LIBRARY_SEARCH_PATHS = /Users/elliotfiske/mosek/7/tools/platform/osx64x86/bin;
 				OTHER_CFLAGS = "       -DNDEBUG  ";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-std=c++0x",

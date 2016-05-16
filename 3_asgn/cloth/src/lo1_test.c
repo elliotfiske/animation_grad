@@ -23,7 +23,7 @@ static void MSKAPI printstr(void *handle,
 int do_thing()
 {
    const MSKint32t numvar = 4,
-   numcon = 3;
+   numcon = 0;
    
    double       c[]     = {3.0, 1.0, 5.0, 1.0};
    /* Below is the sparse representation of the A
@@ -44,7 +44,7 @@ int do_thing()
    double       blc[]  = {30.0,      15.0,          -MSK_INFINITY};
    double       buc[]  = {30.0,      +MSK_INFINITY, 25.0         };
    /* Bounds on variables. */
-   MSKboundkeye bkx[]  = {MSK_BK_LO,     MSK_BK_RA, MSK_BK_LO,     MSK_BK_LO     };
+   MSKboundkeye bkx[]  = {MSK_BK_FR,     MSK_BK_FR, MSK_BK_FR,     MSK_BK_FR     };
    double       blx[]  = {0.0,           0.0,       0.0,           0.0           };
    double       bux[]  = {+MSK_INFINITY, 10.0,      +MSK_INFINITY, +MSK_INFINITY };
    MSKenv_t     env  = NULL;
@@ -109,7 +109,7 @@ int do_thing()
       
       /* Maximize objective function. */
       if (r == MSK_RES_OK)
-         r = MSK_putobjsense(task, MSK_OBJECTIVE_SENSE_MAXIMIZE);
+         r = MSK_putobjsense(task, MSK_OBJECTIVE_SENSE_MINIMIZE);
       
       if ( r==MSK_RES_OK )
       {

@@ -483,6 +483,7 @@ void Cloth::solve_with_mosek(double h) {
     
     int num_entries_M = A_trips.size();
     int NUMVAR = f.rows();
+    int num_con = 0;
     
     double        f_squiggle[]   = {0.0,-1.0,0.0};
     
@@ -522,7 +523,7 @@ void Cloth::solve_with_mosek(double h) {
     if ( r==MSK_RES_OK )
     {
         /* Create the optimization task. */
-        r = MSK_maketask(env,NUMCON,NUMVAR,&task);
+        r = MSK_maketask(env,num_con,NUMVAR,&task);
         
         if ( r==MSK_RES_OK )
         {
@@ -534,8 +535,8 @@ void Cloth::solve_with_mosek(double h) {
             
             /* Append 'NUMCON' empty constraints.
              The constraints will initially have no bounds. */
-//            if ( r == MSK_RES_OK )
-//                r = MSK_appendcons(task,NUMVAR);
+            if ( r == MSK_RES_OK )
+                r = MSK_appendcons(task,num_con);
             
             /* Append 'NUMVAR' variables.
              The variables will initially be fixed at zero (x=0). */
@@ -557,7 +558,7 @@ void Cloth::solve_with_mosek(double h) {
                 if(r == MSK_RES_OK)
                     r = MSK_putvarbound(task,
                                         j,           /* Index of variable.*/
-                                        MSK_BK_LO,        //bkx[j],      /* Bound key.*/
+                                        MSK_BK_FR,        //bkx[j],      /* Bound key.*/
                                         -100.0,              //blx[j],      /* Numerical value of lower bound.*/
                                         +MSK_INFINITY);   //bux[j]);     /* Numerical value of upper bound.*/
 
@@ -579,6 +580,9 @@ void Cloth::solve_with_mosek(double h) {
 //                                    bkc[i],      /* Bound key.*/
 //                                    blc[i],      /* Numerical value of lower bound.*/
 //                                    buc[i]);     /* Numerical value of upper bound.*/
+            
+            if (r == MSK_RES_OK)
+                r = MSK_putobjsense(task, MSK_OBJECTIVE_SENSE_MINIMIZE);
             
             if ( r==MSK_RES_OK )
             {
@@ -621,7 +625,7 @@ void Cloth::solve_with_mosek(double h) {
                 
                 /* Print a summary containing information
                  about the solution for debugging purposes*/
-//                MSK_solutionsummary (task,MSK_STREAM_MSG);
+                MSK_solutionsummary (task,MSK_STREAM_MSG);
                 
                 if ( r==MSK_RES_OK )
                 {
