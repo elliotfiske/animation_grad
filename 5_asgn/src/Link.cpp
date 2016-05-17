@@ -55,7 +55,8 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset) {
     xi << x_offset, y_offset, z_offset, 1.0;
     xi = curr_E * xi;
     
-    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
+//    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
+    
     
     // Check if the point is below the water level
     if (xi(1) < -2.0) {
