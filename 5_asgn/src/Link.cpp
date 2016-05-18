@@ -22,6 +22,13 @@ using namespace std;
 
 #define SEGMENT_WIDTH 1.0f
 
+/* This function prints log output from MOSEK to the terminal. */
+static void MSKAPI printstr(void *handle,
+                            MSKCONST char str[])
+{
+   printf("%s",str);
+} /* printstr */
+
 Link::Link() 
 : Rigid()
 {
@@ -76,6 +83,18 @@ void Link::do_collision() {
     check_corner( 1,  1,  1);
 }
 
+void got_error(MSKrescodee r) {
+   /* In case of an error print error code and description. */
+   char symname[MSK_MAX_STR_LEN];
+   char desc[MSK_MAX_STR_LEN];
+   
+   printf("An error occurred while optimizing.\n");
+   MSK_getcodedesc (r,
+                    symname,
+                    desc);
+   printf("Error %s - '%s'\n",symname,desc);
+}
+
 // Move a link via its angular and positional velocity
 void Link::step(double h) {
    // Mass of the rigidbody
@@ -101,19 +120,111 @@ void Link::step(double h) {
    Vector6d fg = VectorXd::Zero(6);
    fg.segment(3, 3) = local_gravity.segment(0, 3);
    
-   // Solve Ax = b where A = Mi
-   // and b is this huge thing from the worksheet
-   Vector6d b = Mi * curr_phi +
-                 h * (bracket_phi.transpose() * Mi*curr_phi + fg);
+   do_collision();
    
-   curr_phi = Mi.ldlt().solve(b);
+   bool collisions = true;
+   int num_collisions = 0;
+   int num_vars = 6 * 1; // TODO: this 1 becomes more if we have more rigidbodies
+   
+   if (collisions) {
+      // Collisions present! Let's ask our friend Mosek for help solving this one.
+      MSKenv_t env = NULL;
+      MSKrescodee r = MSK_makeenv(&env, NULL);
+      MSKtask_t task = NULL;
+      
+      if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_error(r); }
+      
+      r = MSK_maketask(env, num_collisions, num_vars, &task);
+      if (r != MSK_RES_OK) { printf("ERror making task\n"); got_error(r); }
+      
+      r = MSK_linkfunctotaskstream(task, MSK_STREAM_LOG, NULL, printstr);
+      
+      if (r != MSK_RES_OK) { printf("How did you get an error doing that??\n"); got_error(r); }
+      
+      // Stick the constraints in, from the list of collisions we got from back up there.
+      r = MSK_appendcons(task, num_collisions);
+      if (r != MSK_RES_OK) { printf("Error appending constraints\n"); got_error(r); }
+      
+      // Append 6 * number of rigidbodies to the equation. This is one variable for each
+      //  component in phi, per rigidbody.
+      r = MSK_appendvars(task, 6);
+      if (r != MSK_RES_OK) { printf("Error appending variables\n"); got_error(r); }
+      
+      for (int j = 0; j < num_vars; j++) {
+         
+         r = MSK_putcj(task, j, 0.0); // TODO: idk whats supposed to go here
+         if (r != MSK_RES_OK) { printf("Error adding linear term\n"); got_error(r); }
+         
+         r = MSK_putvarbound(task, j, MSK_BK_FR, -MSK_INFINITY, +MSK_INFINITY);
+         if (r != MSK_RES_OK) { printf("Error adding variable bound\n"); got_error(r); }
+         
+         // TODO: calculate N, put it here in the A-variable's spot.
+         //r = MSK_putacol(task, j, <#MSKint32t nzj#>, <#const MSKint32t *subj#>, <#const MSKrealt *valj#>)
+         
+         
+      }
+      
+      // input  mass matrix
+      MSKint32t qsubi[6];
+      MSKint32t qsubj[6];
+      double    qval[6];
+      
+      for (int ndx = 0; ndx < 3; ndx++) {
+         qsubi[ndx] = ndx;
+         qsubj[ndx] = ndx;
+         qval[ndx] = m * s*s / 6;
+      }
+      
+      for (int ndx = 3; ndx < 6; ndx++) {
+         qsubi[ndx] = ndx;
+         qsubj[ndx] = ndx;
+         qval[ndx] = m;
+      }
+      
+      r = MSK_putqobj(task, 6, qsubi, qsubj, qval);
+      if (r != MSK_RES_OK) { printf("Error inputting Mass Matrix\n"); got_error(r); }
+      
+      MSKrescodee trmcode;
+      r  = MSK_optimizetrm(task, &trmcode);
+      if (r != MSK_RES_OK) { printf("Error finding solution\n"); got_error(r); }
+      
+      MSKsolstae solsta;
+      MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
+      
+      double result[num_vars];
+      
+      switch(solsta) {
+         case MSK_SOL_STA_OPTIMAL:
+         case MSK_SOL_STA_NEAR_OPTIMAL:
+            MSK_getxx(task, MSK_SOL_ITR, result);
+            break;
+            
+         default:
+            printf("Got some weird solution status: %d\n", solsta);
+            break;
+      }
+      
+      MSK_deletetask(&task);
+      MSK_deleteenv(&env);
+      
+      
+   }
+   else {
+      // Solve Ax = b where A = Mi
+      // and b is this huge thing from the worksheet
+      Vector6d b = Mi * curr_phi +
+      h * (bracket_phi.transpose() * Mi*curr_phi + fg);
+      
+      curr_phi = Mi.ldlt().solve(b);
+   }
+   
+   
    
 //   printf("%f, %f, %f, %f, %f, %f\n", curr_phi(0), curr_phi(1), curr_phi(2), curr_phi(3), curr_phi(4), curr_phi(5));
 
    Matrix4d next_E = integrate(curr_E, curr_phi, h);
    curr_E = next_E;
-    
-    do_collision();
+   
 }
 
 // Push this object's matrices onto the stack and draw it
