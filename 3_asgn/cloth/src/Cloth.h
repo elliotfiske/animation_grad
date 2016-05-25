@@ -49,6 +49,7 @@ private:
 	
 	Eigen::VectorXd v;
 	Eigen::VectorXd f;
+   Eigen::VectorXd b;
 	Eigen::MatrixXd M;
 	Eigen::MatrixXd K;
 	

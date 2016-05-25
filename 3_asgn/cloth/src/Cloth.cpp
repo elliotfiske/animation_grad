@@ -61,7 +61,7 @@ Cloth::Cloth(int rows, int cols,
 			p->v << 0.0, 0.0;
 			p->m = mass/(nVerts);
 			// Pin two particles
-            if(i == 0 && (j == 0 || j == cols-1)) {
+         if(i == 0 && (j == 0 || j == cols-1)) {
 				p->fixed = true;
 				p->i = -1;
 			} else {
@@ -298,6 +298,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
 	K.setZero();
 	v.setZero();
 	f.setZero();
+   b.setZero();
     
     Vector2d real_grav;
     real_grav << grav(0), grav(1);
@@ -306,7 +307,6 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
    SparseMatrix<double> A_sparse(n, n);
    
    // Set up our delicious right-hand vector.
-   VectorXd b;
    b.resize(n);
    
    // Loop through every single particle
@@ -479,233 +479,121 @@ static void MSKAPI printstr(void *handle,
     printf("%s",str);
 } /* printstr */
 
+
+void got_error(MSKrescodee r) {
+   /* In case of an error print error code and description. */
+   char symname[MSK_MAX_STR_LEN];
+   char desc[MSK_MAX_STR_LEN];
+   
+   printf("An error occurred while optimizing.\n");
+   MSK_getcodedesc (r,
+                    symname,
+                    desc);
+   printf("Error %s - '%s'\n",symname,desc);
+}
+
+
+#define TEMP_NUM_VARS 46 // TODO: abstract so it works for any # of points, somehow
+
 void Cloth::solve_with_mosek(double h) {
-    
-    int num_entries_M = A_trips.size();
-    int NUMVAR = f.rows();
-    int num_con = 0;
-    
-    double        f_squiggle[]   = {0.0,-1.0,0.0};
-    
-    MSKboundkeye  bkc[] = {MSK_BK_LO};
-    double        blc[] = {1.0};
-    double        buc[] = {+MSK_INFINITY};
-    
-    MSKboundkeye  bkx[] = {MSK_BK_LO,
-        MSK_BK_LO,
-        MSK_BK_LO};
-    double        blx[] = {0.0,
-        0.0,
-        0.0};
-    double        bux[] = {+MSK_INFINITY,
-        +MSK_INFINITY,
-        +MSK_INFINITY};
-    
-    MSKint32t     aptrb[] = {0,   1,   2},
-    aptre[] = {1,   2,   3},
-    asub[]  = {0,   0,   0};
-    double        aval[]  = {1.0, 1.0, 1.0};
-    
-    MSKint32t     qsubi[num_entries_M];
-    MSKint32t     qsubj[num_entries_M];
-    double        qval[num_entries_M];
-    
-    MSKint32t     i,j;
-    double        xx[NUMVAR];
-    
-    MSKenv_t      env = NULL;
-    MSKtask_t     task = NULL;
-    MSKrescodee   r;
-    
-    /* Create the mosek environment. */
-    r = MSK_makeenv(&env,NULL);
-    
-    if ( r==MSK_RES_OK )
-    {
-        /* Create the optimization task. */
-        r = MSK_maketask(env,num_con,NUMVAR,&task);
-        
-        if ( r==MSK_RES_OK )
-        {
-            
-            // Grab clock time BEFORE doing magic multiplication
-            high_resolution_clock::time_point t1 = high_resolution_clock::now();
-            
-            r = MSK_linkfunctotaskstream(task,MSK_STREAM_LOG,NULL,printstr);
-            
-            /* Append 'NUMCON' empty constraints.
-             The constraints will initially have no bounds. */
-            if ( r == MSK_RES_OK )
-                r = MSK_appendcons(task,num_con);
-            
-            /* Append 'NUMVAR' variables.
-             The variables will initially be fixed at zero (x=0). */
-            if ( r == MSK_RES_OK )
-                r = MSK_appendvars(task,NUMVAR);
-            
-            /* Optionally add a constant term to the objective. */
-//            if ( r ==MSK_RES_OK )
-//                r = MSK_putcfix(task,0.0);
-            
-            for(j=0; j<f.rows() && r == MSK_RES_OK; ++j)
-            {
-                /* Set the linear term c_j in the objective.*/
-                if(r == MSK_RES_OK)
-                    r = MSK_putcj(task,j,f(j));
-                
-                /* Set the bounds on variable j.
-                 blx[j] <= x_j <= bux[j] */
-                if(r == MSK_RES_OK)
-                    r = MSK_putvarbound(task,
-                                        j,           /* Index of variable.*/
-                                        MSK_BK_FR,        //bkx[j],      /* Bound key.*/
-                                        -100.0,              //blx[j],      /* Numerical value of lower bound.*/
-                                        +MSK_INFINITY);   //bux[j]);     /* Numerical value of upper bound.*/
-
-                /* Input column j of A */
-//                if(r == MSK_RES_OK)
-//                    r = MSK_putacol(task,
-//                                    j,                 /* Variable (column) index.*/
-//                                    aptre[j]-aptrb[j], /* Number of non-zeros in column j.*/
-//                                    asub+aptrb[j],     /* Pointer to row indexes of column j.*/
-//                                    aval+aptrb[j]);    /* Pointer to Values of column j.*/
-                
-            }
-            
-            /* Set the bounds on constraints.
-             for i=1, ...,NUMCON : blc[i] <= constraint i <= buc[i] */
-//            for(i=0; i<NUMCON && r==MSK_RES_OK; ++i)
-//                r = MSK_putconbound(task,
-//                                    i,           /* Index of constraint.*/
-//                                    bkc[i],      /* Bound key.*/
-//                                    blc[i],      /* Numerical value of lower bound.*/
-//                                    buc[i]);     /* Numerical value of upper bound.*/
-            
-            if (r == MSK_RES_OK)
-                r = MSK_putobjsense(task, MSK_OBJECTIVE_SENSE_MINIMIZE);
-            
-            if ( r==MSK_RES_OK )
-            {
-                /*
-                 * The lower triangular part of the Q
-                 * matrix in the objective is specified.
-                 */
-                
-                for (int ndx = 0; ndx < A_trips.size (); ndx++) {
-                    if (A_trips[ndx].row() >= A_trips[ndx].col()) {
-                        qsubi[ndx] = A_trips[ndx].row();
-                        qsubj[ndx] = A_trips[ndx].col();
-                        qval[ndx] += 0.5 * A_trips[ndx].value();
-                    }
-                }
-                
-//                qsubi[0] = 0;   qsubj[0] = 0;  qval[0] = 2.0;
-//                qsubi[1] = 1;   qsubj[1] = 1;  qval[1] = 0.2;
-//                qsubi[2] = 2;   qsubj[2] = 0;  qval[2] = -1.0;
-//                qsubi[3] = 2;   qsubj[3] = 2;  qval[3] = 2.0;
-                
-                /* Input the Q for the objective. */
-                
-                r = MSK_putqobj(task,num_entries_M,qsubi,qsubj,qval);
-            }
-            
-            if ( r==MSK_RES_OK )
-            {
-                MSKrescodee trmcode;
-                
-                /* Run optimizer */
-                r = MSK_optimizetrm(task,&trmcode);
-                
-                // Grab clock time AFTER doing tons of pointless math
-                high_resolution_clock::time_point t2 = high_resolution_clock::now();
-                
-                // Print duration!
-                auto duration = duration_cast<microseconds>( t2 - t1 ).count();
-                cout << "Results: " << duration << " µs" << endl;
-                
-                /* Print a summary containing information
-                 about the solution for debugging purposes*/
-                MSK_solutionsummary (task,MSK_STREAM_MSG);
-                
-                if ( r==MSK_RES_OK )
-                {
-                    MSKsolstae solsta;
-//                    int j;
-                    
-                    MSK_getsolsta (task,MSK_SOL_ITR,&solsta);
-                    
-                    switch(solsta)
-                    {
-                        case MSK_SOL_STA_OPTIMAL:
-                        case MSK_SOL_STA_NEAR_OPTIMAL:
-                            MSK_getxx(task,
-                                      MSK_SOL_ITR,    /* Request the interior solution. */
-                                      xx);
-                            
-                            printf("Optimal primal solution\n");
-//                            for(j=0; j<NUMVAR; ++j)
-//                                printf("x[%d]: %e\n",j,xx[j]);
-                            
-                            break;
-                        case MSK_SOL_STA_DUAL_INFEAS_CER:
-                        case MSK_SOL_STA_PRIM_INFEAS_CER:
-                        case MSK_SOL_STA_NEAR_DUAL_INFEAS_CER:
-                        case MSK_SOL_STA_NEAR_PRIM_INFEAS_CER:
-                            printf("Primal or dual infeasibility certificate found.\n");
-                            break;
-                            
-                        case MSK_SOL_STA_UNKNOWN:
-                            printf("The status of the solution could not be determined.\n");
-                            break;
-                        default:
-                            printf("Other solution status.");
-                            break;
-                    }
-                }
-                else
-                {
-                    printf("Error while optimizing.\n");
-                }
-            }
-            
-            if (r != MSK_RES_OK)
-            {
-                /* In case of an error print error code and description. */
-                char symname[MSK_MAX_STR_LEN];
-                char desc[MSK_MAX_STR_LEN];
-                
-                printf("An error occurred while optimizing.\n");
-                MSK_getcodedesc (r,
-                                 symname,
-                                 desc);
-                printf("Error %s - '%s'\n",symname,desc);
-            }
-        }
-        MSK_deletetask(&task);
-    }
-    MSK_deleteenv(&env);
-
-    
-    
-    // Set each particles' new velocity
-    for (int ndx = 0; ndx < particles.size(); ndx++) {
-        shared_ptr<Particle> p = particles[ndx];
-        
-        int particle_ndx = p->i;
-        if (particle_ndx != -1) {
-            p->v(0) = xx[particle_ndx];
-            p->v(1) = xx[particle_ndx + 1];
-//            p->v = result_v.block<2, 1>(particle_ndx, 0);
-        }
-    }
-    
-    // Set each particles' new position
-    for (int ndx = 0; ndx < particles.size(); ndx++) {
-        shared_ptr<Particle> p = particles[ndx];
-        
-        int particle_ndx = p->i;
-        if (particle_ndx != -1) {
-            p->x += h * p->v;
-        }
-    }
+   
+   int num_entries_M = A_trips.size();
+   int num_vars = n; // Equal to the number of particles * 3
+   double result[TEMP_NUM_VARS];
+   
+   MSKenv_t env = NULL;
+   MSKrescodee r = MSK_RES_OK;
+   MSKtask_t task = NULL;
+   
+   int num_constraints = 0; // TODO: this will be equal to the # of collisions
+   
+   r = MSK_makeenv(&env, NULL);
+   if (r != MSK_RES_OK) { printf("ERROR: making env\n"); got_error(r); }
+   
+   r = MSK_maketask(env, num_constraints, num_vars, &task);
+   if (r != MSK_RES_OK) { printf("ERROR: making task\n"); got_error(r); }
+   
+   r = MSK_linkfunctotaskstream(task, MSK_STREAM_LOG, NULL, printstr);
+   if (r != MSK_RES_OK) { printf("ERROR: hooking up printstr\n"); got_error(r); }
+   
+   r = MSK_appendcons(task, num_constraints);
+   if (r != MSK_RES_OK) { printf("ERROR: appending constraints\n"); got_error(r); }
+   
+   r = MSK_appendvars(task, num_vars);
+   if (r != MSK_RES_OK) { printf("ERROR: appending vars\n"); got_error(r); }
+   
+   for (int j = 0; j < num_vars; j++) {
+      r = MSK_putcj(task, j, -b[j]);
+      if (r != MSK_RES_OK) { printf("ERROR: inputting b-vector\n"); got_error(r); }
+      
+      r = MSK_putvarbound(task, j, MSK_BK_FR, -MSK_INFINITY, +MSK_INFINITY);
+      if (r != MSK_RES_OK) { printf("ERROR: setting variable bound\n"); got_error(r); }
+      
+      // TODO: input columns for constraints here
+   }
+   
+   // TODO: set bounds on constrains here (greater than zero hahahahaha)
+   
+   // Input Q matrix
+   MSKint32t qsubi[370];
+   MSKint32t qsubj[370];
+   double     qval[370];
+   
+   int data_ndx = 0; // This is where the actual data is getting plonked into the array.
+                     //   It differs from ndx by the number of upper-triangular values we're getting.
+   
+   for (int ndx = 0; ndx < A_trips.size (); ndx++) {
+      if (A_trips[ndx].row() >= A_trips[ndx].col()) {
+         qsubi[data_ndx] = (MSKint32t) A_trips[ndx].row();
+         qsubj[data_ndx] = (MSKint32t) A_trips[ndx].col();
+         qval[data_ndx]  = A_trips[ndx].value();
+         
+         data_ndx++;
+      }
+   }
+   
+   r = MSK_putqobj(task, data_ndx, qsubi, qsubj, qval);
+   if (r != MSK_RES_OK) { printf("ERROR: inputting Q\n"); got_error(r); }
+   
+   MSKrescodee trmcode;
+   
+   r = MSK_optimizetrm(task, &trmcode);
+   if (r != MSK_RES_OK) { printf("ERROR: solving probbo\n"); got_error(r); }
+   
+   MSKsolstae solsta;
+   MSK_getsolsta (task, MSK_SOL_ITR, &solsta);
+   switch (solsta) {
+      case MSK_SOL_STA_OPTIMAL:
+      case MSK_SOL_STA_NEAR_OPTIMAL:
+         MSK_getxx(task, MSK_SOL_ITR, result);
+         break;
+      default:
+         printf("Couldn't find solution! got something weird: %d\n", solsta);
+   }
+   
+   MSK_deletetask(&task);
+   MSK_deleteenv(&env);
+   
+   // Set each particles' new velocity
+   for (int ndx = 0; ndx < particles.size(); ndx++) {
+      shared_ptr<Particle> p = particles[ndx];
+      
+      int particle_ndx = p->i;
+      if (particle_ndx != -1) {
+         p->v(0) = result[particle_ndx];
+         p->v(1) = result[particle_ndx + 1];
+         //            p->v = result_v.block<2, 1>(particle_ndx, 0);
+         printf("X vel: %f Y vel: %f\n", result[particle_ndx], result[particle_ndx + 1]);
+      }
+   }
+   
+   // Set each particles' new position
+   for (int ndx = 0; ndx < particles.size(); ndx++) {
+      shared_ptr<Particle> p = particles[ndx];
+      
+      int particle_ndx = p->i;
+      if (particle_ndx != -1) {
+         p->x += h * p->v;
+      }
+   }
 }
