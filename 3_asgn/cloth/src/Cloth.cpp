@@ -61,14 +61,14 @@ Cloth::Cloth(int rows, int cols,
             p->v << 0.0, 0.0;
             p->m = mass/(nVerts);
             // Pin two particles
-            if(i == 0 && (j == 0)) {// || j == cols-1)) {
-                p->fixed = true;
-                p->i = -1;
-            } else {
+//            if(i == 0 && (j == 0 || j == cols-1)) {
+//                p->fixed = true;
+//                p->i = -1;
+//            } else {
                 p->fixed = false;
                 p->i = n;
                 n += 2;
-            }
+//            }
         }
     }
     
@@ -304,6 +304,7 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
     v.setZero();
     f.setZero();
     b.setZero();
+    collision_cols.clear();
     
     Vector2d real_grav;
     real_grav << grav(0), grav(1);
@@ -481,7 +482,7 @@ void Cloth::draw(shared_ptr<MatrixStack> MV, const shared_ptr<Program> p) const
 static void MSKAPI printstr(void *handle,
                             MSKCONST char str[])
 {
-    printf("%s",str);
+//    printf("%s",str);
 } /* printstr */
 
 
@@ -511,7 +512,7 @@ void Cloth::solve_with_mosek(double h) {
     MSKrescodee r = MSK_RES_OK;
     MSKtask_t task = NULL;
     
-    int num_constraints = 0; // TODO: this will be equal to the # of collisions
+    int num_constraints = 1;
     
     r = MSK_makeenv(&env, NULL);
     if (r != MSK_RES_OK) { printf("ERROR: making env\n"); got_error(r); }
@@ -535,11 +536,26 @@ void Cloth::solve_with_mosek(double h) {
         r = MSK_putvarbound(task, j, MSK_BK_FR, -MSK_INFINITY, +MSK_INFINITY);
         if (r != MSK_RES_OK) { printf("ERROR: setting variable bound\n"); got_error(r); }
         
-        // TODO: input columns for constraints here
         
     }
     
-    // TODO: set bounds on constrains here (greater than zero hahahahaha)
+    // We need an array like [0, 1, 2, 3...] for each ROW INDEX of the constraint matrix.
+    //  How silly!
+    vector<int> N_row_indices;
+    for (int ndx = 0; ndx < collision_cols.size(); ndx++) {
+        N_row_indices.push_back(ndx);
+    }
+    
+    // Everything's 1 in the constraint matrix (for now :3)
+    double N_val = 1;
+    
+    for (int ndx = 0; ndx < collision_cols.size(); ndx++) {
+        r = MSK_putacol(task, collision_cols[ndx], 1, &N_row_indices[0], &N_val);
+        if (r != MSK_RES_OK) { printf("ERROR: setting constraint value\n"); got_error(r); }
+    }
+    
+    // Set bounds of constraint
+    r = MSK_putconbound(task, 0, MSK_BK_LO, 0, +MSK_INFINITY);
     
     // Input Q matrix
     vector<MSKint32t> qsubi;
@@ -594,7 +610,7 @@ void Cloth::solve_with_mosek(double h) {
             p->v(0) = result[particle_ndx];
             p->v(1) = result[particle_ndx + 1];
             //            p->v = result_v.block<2, 1>(particle_ndx, 0);
-            printf("X vel: %f Y vel: %f\n", result[particle_ndx], result[particle_ndx + 1]);
+//            printf("X vel: %f Y vel: %f\n", result[particle_ndx], result[particle_ndx + 1]);
         }
     }
     
