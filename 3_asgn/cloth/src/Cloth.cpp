@@ -61,7 +61,7 @@ Cloth::Cloth(int rows, int cols,
 			p->v << 0.0, 0.0;
 			p->m = mass/(nVerts);
 			// Pin two particles
-         if(i == 0 && (j == 0 || j == cols-1)) {
+         if(i == 0 && (j == 0)) {// || j == cols-1)) {
 				p->fixed = true;
 				p->i = -1;
 			} else {
@@ -493,13 +493,14 @@ void got_error(MSKrescodee r) {
 }
 
 
-#define TEMP_NUM_VARS 46 // TODO: abstract so it works for any # of points, somehow
-
 void Cloth::solve_with_mosek(double h) {
    
    int num_entries_M = A_trips.size();
    int num_vars = n; // Equal to the number of particles * 3
-   double result[TEMP_NUM_VARS];
+   
+   vector<double> result;
+   result.resize(num_vars);
+   
    
    MSKenv_t env = NULL;
    MSKrescodee r = MSK_RES_OK;
@@ -535,9 +536,13 @@ void Cloth::solve_with_mosek(double h) {
    // TODO: set bounds on constrains here (greater than zero hahahahaha)
    
    // Input Q matrix
-   MSKint32t qsubi[370];
-   MSKint32t qsubj[370];
-   double     qval[370];
+   vector<MSKint32t> qsubi;
+   vector<MSKint32t> qsubj;
+   vector<double>     qval;
+   
+   qsubi.resize(num_entries_M);
+   qsubj.resize(num_entries_M);
+   qval.resize(num_entries_M);
    
    int data_ndx = 0; // This is where the actual data is getting plonked into the array.
                      //   It differs from ndx by the number of upper-triangular values we're getting.
@@ -552,7 +557,7 @@ void Cloth::solve_with_mosek(double h) {
       }
    }
    
-   r = MSK_putqobj(task, data_ndx, qsubi, qsubj, qval);
+   r = MSK_putqobj(task, data_ndx, &qsubi[0], &qsubj[0], &qval[0]);
    if (r != MSK_RES_OK) { printf("ERROR: inputting Q\n"); got_error(r); }
    
    MSKrescodee trmcode;
@@ -565,7 +570,7 @@ void Cloth::solve_with_mosek(double h) {
    switch (solsta) {
       case MSK_SOL_STA_OPTIMAL:
       case MSK_SOL_STA_NEAR_OPTIMAL:
-         MSK_getxx(task, MSK_SOL_ITR, result);
+         MSK_getxx(task, MSK_SOL_ITR, &result[0]);
          break;
       default:
          printf("Couldn't find solution! got something weird: %d\n", solsta);
