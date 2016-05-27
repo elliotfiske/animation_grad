@@ -49,9 +49,10 @@ private:
 	
 	Eigen::VectorXd v;
 	Eigen::VectorXd f;
-   Eigen::VectorXd b;
+    Eigen::VectorXd b;
 	Eigen::MatrixXd M;
 	Eigen::MatrixXd K;
+    std::vector<int> collision_cols; // Which columns have a non-zero collision constraint in them?
 	
 	std::vector<unsigned int> eleBuf;
 	std::vector<float> posBuf;
