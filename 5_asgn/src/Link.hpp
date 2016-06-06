@@ -25,6 +25,7 @@ struct Contact {
    Eigen::Vector3d nw; // World space coords of normal
    Eigen::Vector3d tangent0w;
    Eigen::Vector3d tangent1w;
+   Eigen::VectorXd N_component;
 };
 
 

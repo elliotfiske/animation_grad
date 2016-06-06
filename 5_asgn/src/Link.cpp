@@ -26,7 +26,7 @@ using namespace std;
 static void MSKAPI printstr(void *handle,
                             MSKCONST char str[])
 {
-//   printf("%s",str);
+   printf("%s",str);
 } /* printstr */
 
 Link::Link() 
@@ -70,7 +70,6 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset) {
    
    // Check if the point is below the water level
    if (xw(1) < -2.0) {
-      printf("Hey it's colliding");
       Contact c;
       c.xw = xw;
       c.nw = Vector3d(0.0, 1.0, 0.0);
@@ -94,6 +93,10 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset) {
       Vector3d tangent1 = c.nw.cross(tangent0);
       c.tangent0w = tangent0;
       c.tangent1w = tangent1;
+      
+      c.N_component = c.nw.transpose() * J;
+      
+      contacts.push_back(c);
    }
 }
 
@@ -150,24 +153,24 @@ void Link::step(double h) {
    
    do_collision();
    
-   bool collisions = true;
-   int num_collisions = 0;
    int num_vars = 6 * 1; // TODO: this 1 becomes more if we have more rigidbodies
    
    // Solve Ax = b where A = Mi
    // and b is this huge thing from the worksheet
    Vector6d b = Mi * curr_phi +
-   h * (bracket_phi.transpose() * Mi*curr_phi + fg);
+      h * (bracket_phi.transpose() * Mi*curr_phi + fg);
    
-   if (collisions) {
+   if (contacts.size() > 0) {
+      
       // Collisions present! Let's ask our friend Mosek for help solving this one.
       MSKenv_t env = NULL;
       MSKrescodee r = MSK_makeenv(&env, NULL);
       MSKtask_t task = NULL;
+      int num_constraints = 1;
       
       if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_error(r); }
       
-      r = MSK_maketask(env, num_collisions, num_vars, &task);
+      r = MSK_maketask(env, num_constraints, num_vars, &task);
       if (r != MSK_RES_OK) { printf("ERror making task\n"); got_error(r); }
       
       r = MSK_linkfunctotaskstream(task, MSK_STREAM_LOG, NULL, printstr);
@@ -175,7 +178,7 @@ void Link::step(double h) {
       if (r != MSK_RES_OK) { printf("How did you get an error doing that??\n"); got_error(r); }
       
       // Stick the constraints in, from the list of collisions we got from back up there.
-      r = MSK_appendcons(task, num_collisions);
+      r = MSK_appendcons(task, num_constraints);
       if (r != MSK_RES_OK) { printf("Error appending constraints\n"); got_error(r); }
       
       // Append 6 * number of rigidbodies to the equation. This is one variable for each
@@ -192,17 +195,39 @@ void Link::step(double h) {
          if (r != MSK_RES_OK) { printf("Error adding variable bound\n"); got_error(r); }
       }
       
-      
+//      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
       // TODO: calculate N, put it here in the A-variable's spot.
       //r = MSK_putacol(task, j, <#MSKint32t nzj#>, <#const MSKint32t *subj#>, <#const MSKrealt *valj#>)
       
       
+      // we need the "indexes of the non-zero elements in the row", but since everything has non-zero,
+      //  we'll just make an array with 1->6, for goofs and gaffs.
+      vector<MSKint32t> row_ndxs;
+      for (int ndx = 0; ndx < 6 * 1; ndx++) {
+         row_ndxs.push_back(ndx);
+      }
+      
+      // Insert the rows of the constraint
+      for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
+         r = MSK_putarow(task, contact_ndx, 6 * 1, &row_ndxs[0], &contacts[contact_ndx].N_component[0]);
+         if (r != MSK_RES_OK) {
+            printf("Error setting constraint\n"); got_error(r);
+         }
+      }
+      
+      r = MSK_putconbound(task, 0, MSK_BK_LO, 0, +MSK_INFINITY);
+      if (r != MSK_RES_OK) { printf("Error setting contraint bounds\n"); got_error(r); }
+       
       
       // input  mass matrix
-      MSKint32t qsubi[6];
-      MSKint32t qsubj[6];
-      double    qval[6];
+      vector<MSKint32t> qsubi;
+      qsubi.resize(6);
+      vector<MSKint32t> qsubj;
+      qsubj.resize(6);
+      vector<double>    qval;
+      qval.resize(6);
       
+      // Building mass matrix by hand here :/
       for (int ndx = 0; ndx < 3; ndx++) {
          qsubi[ndx] = ndx;
          qsubj[ndx] = ndx;
@@ -215,7 +240,7 @@ void Link::step(double h) {
          qval[ndx] = m;
       }
       
-      r = MSK_putqobj(task, 6, qsubi, qsubj, qval);
+      r = MSK_putqobj(task, 6, &qsubi[0], &qsubj[0], &qval[0]);
       if (r != MSK_RES_OK) { printf("Error inputting Mass Matrix\n"); got_error(r); }
       
       MSKrescodee trmcode;
@@ -250,13 +275,10 @@ void Link::step(double h) {
       curr_phi = Mi.ldlt().solve(b);
    }
    
-   
-   
 //   printf("%f, %f, %f, %f, %f, %f\n", curr_phi(0), curr_phi(1), curr_phi(2), curr_phi(3), curr_phi(4), curr_phi(5));
 
    Matrix4d next_E = integrate(curr_E, curr_phi, h);
    curr_E = next_E;
-   
 }
 
 // Push this object's matrices onto the stack and draw it
