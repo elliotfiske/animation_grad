@@ -26,7 +26,7 @@ using namespace std;
 static void MSKAPI printstr(void *handle,
                             MSKCONST char str[])
 {
-   printf("%s",str);
+//   printf("%s",str);
 } /* printstr */
 
 Link::Link() 
@@ -56,31 +56,59 @@ Link::~Link()
 }
 
 void Link::check_corner(double x_offset, double y_offset, double z_offset) {
-    // The vector (x, y, z) is in model-space, I want to convert it to
-    //  world space
-    Vector4d xi;
-    xi << x_offset, y_offset, z_offset, 1.0;
-    xi = curr_E * xi;
-    
-//    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
-    
-    
-    // Check if the point is below the water level
-    if (xi(1) < -2.0) {
-        printf("Hey it's colliding");
-    }
+   // The vector (x, y, z) is in model-space, I want to convert it to
+   //  world space
+   Vector3d xi;
+   xi << x_offset, y_offset, z_offset;
+   
+   Vector4d xw;
+   xw << x_offset, y_offset, z_offset, 1.0;
+   xw = curr_E * xw;
+   
+   //    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
+   
+   
+   // Check if the point is below the water level
+   if (xw(1) < -2.0) {
+      printf("Hey it's colliding");
+      Contact c;
+      c.xw = xw;
+      c.nw = Vector3d(0.0, 1.0, 0.0);
+      
+      MatrixXd J = curr_E.block<3,3>(0,0) * gamma(xi); // Jacobian
+      Vector3d world_vel = J * curr_phi;
+      
+      double thresh = 1e-6;
+      Vector3d tangent0 = c.nw.cross(world_vel);
+      if (tangent0.norm() < thresh) { // IDK what this means. Should ask.
+         Vector3d tmp;
+         if (abs(c.nw(2)) < thresh) {
+            tmp << 0.0, 1.0, 0.0;
+         }
+         else {
+            tmp << 1.0, 0.0, 0.0;
+         }
+         tangent0 = c.nw.cross(tmp);
+      }
+      tangent0.normalize();
+      Vector3d tangent1 = c.nw.cross(tangent0);
+      c.tangent0w = tangent0;
+      c.tangent1w = tangent1;
+   }
 }
 
 void Link::do_collision() {
-    // Check each corner of me for a collision
-    check_corner(-1, -1, -1);
-    check_corner(-1, -1,  1);
-    check_corner(-1,  1, -1);
-    check_corner(-1,  1,  1);
-    check_corner( 1, -1, -1);
-    check_corner( 1, -1,  1);
-    check_corner( 1,  1, -1);
-    check_corner( 1,  1,  1);
+   contacts.clear();
+   
+   // Check each corner of me for a collision
+   check_corner(-1, -1, -1);
+   check_corner(-1, -1,  1);
+   check_corner(-1,  1, -1);
+   check_corner(-1,  1,  1);
+   check_corner( 1, -1, -1);
+   check_corner( 1, -1,  1);
+   check_corner( 1,  1, -1);
+   check_corner( 1,  1,  1);
 }
 
 void got_error(MSKrescodee r) {
@@ -126,6 +154,11 @@ void Link::step(double h) {
    int num_collisions = 0;
    int num_vars = 6 * 1; // TODO: this 1 becomes more if we have more rigidbodies
    
+   // Solve Ax = b where A = Mi
+   // and b is this huge thing from the worksheet
+   Vector6d b = Mi * curr_phi +
+   h * (bracket_phi.transpose() * Mi*curr_phi + fg);
+   
    if (collisions) {
       // Collisions present! Let's ask our friend Mosek for help solving this one.
       MSKenv_t env = NULL;
@@ -152,17 +185,18 @@ void Link::step(double h) {
       
       for (int j = 0; j < num_vars; j++) {
          
-         r = MSK_putcj(task, j, 0.0); // TODO: idk whats supposed to go here
+         r = MSK_putcj(task, j, -b[j]); // TODO: idk whats supposed to go here
          if (r != MSK_RES_OK) { printf("Error adding linear term\n"); got_error(r); }
          
          r = MSK_putvarbound(task, j, MSK_BK_FR, -MSK_INFINITY, +MSK_INFINITY);
          if (r != MSK_RES_OK) { printf("Error adding variable bound\n"); got_error(r); }
-         
-         // TODO: calculate N, put it here in the A-variable's spot.
-         //r = MSK_putacol(task, j, <#MSKint32t nzj#>, <#const MSKint32t *subj#>, <#const MSKrealt *valj#>)
-         
-         
       }
+      
+      
+      // TODO: calculate N, put it here in the A-variable's spot.
+      //r = MSK_putacol(task, j, <#MSKint32t nzj#>, <#const MSKint32t *subj#>, <#const MSKrealt *valj#>)
+      
+      
       
       // input  mass matrix
       MSKint32t qsubi[6];
@@ -191,12 +225,13 @@ void Link::step(double h) {
       MSKsolstae solsta;
       MSK_getsolsta(task, MSK_SOL_ITR, &solsta);
       
-      double result[num_vars];
+      vector<double> result;
+      result.resize(num_vars);
       
       switch(solsta) {
          case MSK_SOL_STA_OPTIMAL:
          case MSK_SOL_STA_NEAR_OPTIMAL:
-            MSK_getxx(task, MSK_SOL_ITR, result);
+            MSK_getxx(task, MSK_SOL_ITR, &result[0]);
             break;
             
          default:
@@ -204,17 +239,14 @@ void Link::step(double h) {
             break;
       }
       
+      for (int ndx = 0; ndx < curr_phi.rows(); ndx++) {
+         curr_phi[ndx] = result[ndx];
+      }
+      
       MSK_deletetask(&task);
       MSK_deleteenv(&env);
-      
-      
    }
    else {
-      // Solve Ax = b where A = Mi
-      // and b is this huge thing from the worksheet
-      Vector6d b = Mi * curr_phi +
-      h * (bracket_phi.transpose() * Mi*curr_phi + fg);
-      
       curr_phi = Mi.ldlt().solve(b);
    }
    

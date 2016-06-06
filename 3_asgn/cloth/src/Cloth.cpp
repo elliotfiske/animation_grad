@@ -297,6 +297,40 @@ void Cloth::convert_2x2_mat_to_trips(const Eigen::Matrix2d &mat, int offset_row,
     }
 }
 
+void Cloth::solve_without_mosek(double h) {
+    SparseMatrix<double> A_sparse(n, n);
+    VectorXd result_v;
+    result_v.resize(n);
+    
+    A_sparse.setFromTriplets(A_trips.begin(), A_trips.end());
+    
+    ConjugateGradient<SparseMatrix<double> > cg;
+    cg.setMaxIterations(25);
+    cg.setTolerance(1e-3);
+    cg.compute(A_sparse);
+    result_v = cg.solveWithGuess(b, v);
+    
+    // Set each particles' new velocity
+    for (int ndx = 0; ndx < particles.size(); ndx++) {
+        shared_ptr<Particle> p = particles[ndx];
+        
+        int particle_ndx = p->i;
+        if (particle_ndx != -1) {
+            p->v = result_v.block<2, 1>(particle_ndx, 0);
+        }
+    }
+    
+    // Set each particles' new position
+    for (int ndx = 0; ndx < particles.size(); ndx++) {
+        shared_ptr<Particle> p = particles[ndx];
+        
+        int particle_ndx = p->i;
+        if (particle_ndx != -1) {
+            p->x += h * p->v;
+        }
+    }
+}
+
 void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Particle> > spheres)
 {
     M.setZero();
@@ -411,7 +445,12 @@ void Cloth::step(double h, const Vector3d &grav, const vector< shared_ptr<Partic
     
     check_for_collisions();
     
-    solve_with_mosek(h);
+    if (collision_cols.size() == 0) {
+        solve_without_mosek(h);
+    }
+    else {
+        solve_with_mosek(h);
+    }
     
     // Update position and normal buffers
     updatePosNor();
@@ -535,8 +574,6 @@ void Cloth::solve_with_mosek(double h) {
         
         r = MSK_putvarbound(task, j, MSK_BK_FR, -MSK_INFINITY, +MSK_INFINITY);
         if (r != MSK_RES_OK) { printf("ERROR: setting variable bound\n"); got_error(r); }
-        
-        
     }
     
     // We need an array like [0, 1, 2, 3...] for each ROW INDEX of the constraint matrix.

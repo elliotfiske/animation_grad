@@ -19,6 +19,14 @@
 #include "Rigid.h"
 #include "Shape.h"
 
+struct Contact {
+   int rigid_body_ndx;
+   Eigen::Vector4d xw; // World space coords of contact
+   Eigen::Vector3d nw; // World space coords of normal
+   Eigen::Vector3d tangent0w;
+   Eigen::Vector3d tangent1w;
+};
+
 
 class Link : public Rigid
 {
@@ -29,6 +37,8 @@ public:
    
    std::shared_ptr<Link> parent;
    std::vector<std::shared_ptr<Link> > children;
+   
+   std::vector<Contact> contacts;
    
    // Rigid transform
    Eigen::Matrix4d curr_E;
@@ -43,6 +53,8 @@ public:
    void step(double h);
    void do_collision();
    void check_corner(double x_offset, double y_offset, double z_offset);
+    
+   
    
    // What shape to draw when we draw this Link
    static std::shared_ptr<Shape> shape;

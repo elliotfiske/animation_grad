@@ -32,10 +32,10 @@ void Scene::load(const string &RESOURCE_DIR)
 	double mass = 0.1;
 	double stiffness = 2e2;
 	Vector2d damping(1.0, 3.0);
-	Vector2d x00(-0.25, 0.5);
-	Vector2d x01(0.25, 0.5);
-	Vector2d x10(-0.25, 0.4);
-	Vector2d x11(0.25, 0.4);
+	Vector2d x00(-0.25, 1.5);
+	Vector2d x01(0.25, 1.5);
+	Vector2d x10(-0.25, 1.0);
+	Vector2d x11(0.25, 1.0);
 	cloth = make_shared<Cloth>(rows, cols, x00, x01, x10, x11, mass, stiffness, damping);
 }
 

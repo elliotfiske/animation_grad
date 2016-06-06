@@ -73,6 +73,7 @@ private:
     void check_for_collisions();
     
     void solve_with_mosek(double h);
+    void solve_without_mosek(double h);
     
 	unsigned eleBufID;
 	unsigned posBufID;
