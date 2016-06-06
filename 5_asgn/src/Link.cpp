@@ -195,7 +195,6 @@ void Link::step(double h) {
          if (r != MSK_RES_OK) { printf("Error adding variable bound\n"); got_error(r); }
       }
       
-//      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
       // TODO: calculate N, put it here in the A-variable's spot.
       //r = MSK_putacol(task, j, <#MSKint32t nzj#>, <#const MSKint32t *subj#>, <#const MSKrealt *valj#>)
       
@@ -207,9 +206,11 @@ void Link::step(double h) {
          row_ndxs.push_back(ndx);
       }
       
+      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
+      
       // Insert the rows of the constraint
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
-         r = MSK_putarow(task, contact_ndx, 6 * 1, &row_ndxs[0], &contacts[contact_ndx].N_component[0]);
+         r = MSK_putarow(task, 0, 6 * 1, &row_ndxs[0], &contacts[contact_ndx].N_component[0]);
          if (r != MSK_RES_OK) {
             printf("Error setting constraint\n"); got_error(r);
          }
