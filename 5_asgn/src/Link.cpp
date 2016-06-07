@@ -44,8 +44,8 @@ Link::Link()
    
    // Start angular velocity as 0, 0, 2.0
    // and positional velocity as -1, 0, 0
-   Vector3d w( 1.0, 0, 2.0);
-   Vector3d v(-1, 2.0, 0);
+   Vector3d w( 0.0, 0.0, 0.0);
+   Vector3d v(0.0, 0.0, 0.0);
    
    curr_phi.resize(6);
    curr_phi << w(0), w(1), w(2), v(0), v(1), v(2);
@@ -151,6 +151,12 @@ void Link::step(double h) {
    Vector6d fg = VectorXd::Zero(6);
    fg.segment(3, 3) = local_gravity.segment(0, 3);
    
+   VectorXd coriolis = Mi * curr_phi;
+   coriolis.segment<3>(0) = curr_phi.segment<3>(0).cross(coriolis.segment<3>(0));
+   coriolis.segment<3>(3) = curr_phi.segment<3>(0).cross(coriolis.segment<3>(3));
+   
+   fg -= coriolis;
+   
    do_collision();
    
    int num_vars = 6 * 1; // TODO: this 1 becomes more if we have more rigidbodies
@@ -166,7 +172,7 @@ void Link::step(double h) {
       MSKenv_t env = NULL;
       MSKrescodee r = MSK_makeenv(&env, NULL);
       MSKtask_t task = NULL;
-      int num_constraints = 1;
+      int num_constraints = contacts.size();
       
       if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_error(r); }
       
@@ -206,18 +212,21 @@ void Link::step(double h) {
          row_ndxs.push_back(ndx);
       }
       
-      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
+//      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
       
       // Insert the rows of the constraint
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
-         r = MSK_putarow(task, 0, 6 * 1, &row_ndxs[0], &contacts[contact_ndx].N_component[0]);
-         if (r != MSK_RES_OK) {
-            printf("Error setting constraint\n"); got_error(r);
+         for (int n_ndx = 0; n_ndx < 6; n_ndx++) {
+            r = MSK_putaij(task, contact_ndx, n_ndx, contacts[contact_ndx].N_component[n_ndx]);
+            if (r != MSK_RES_OK) {
+               printf("Error setting constraint\n"); got_error(r);
+            }
          }
+         
+         r = MSK_putconbound(task, contact_ndx, MSK_BK_LO, 0, +MSK_INFINITY);
+         if (r != MSK_RES_OK) { printf("Error setting contraint bounds\n"); got_error(r); }
       }
       
-      r = MSK_putconbound(task, 0, MSK_BK_LO, 0, +MSK_INFINITY);
-      if (r != MSK_RES_OK) { printf("Error setting contraint bounds\n"); got_error(r); }
        
       
       // input  mass matrix
