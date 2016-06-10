@@ -153,4 +153,5 @@ dependencies: /Users/elliotfiske/animation_grad/5_asgn/src/Scene.cpp \
   /Users/elliotfiske/cpe474/deps/eigen/Eigen/src/Eigenvalues/MatrixBaseEigenvalues.h \
   /Users/elliotfiske/animation_grad/5_asgn/src/MatrixStack.h \
   /Users/elliotfiske/animation_grad/5_asgn/src/Rigid.h \
-  /Users/elliotfiske/animation_grad/5_asgn/src/Shape.h
+  /Users/elliotfiske/animation_grad/5_asgn/src/Shape.h \
+  /Users/elliotfiske/animation_grad/5_asgn/src/mosek_man.h

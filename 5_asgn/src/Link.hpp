@@ -55,6 +55,8 @@ public:
    // Calculate the current f-component
    Vector6d get_curr_f();
    
+   void update_pos(double h);
+   
    // For now, just the rotation around the Z axis
    float angle;
     
@@ -63,7 +65,7 @@ public:
    void draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape);
    void step(double h);
    void do_collision();
-   void check_corner(double x_offset, double y_offset, double z_offset);
+   Contact check_corner(double x_offset, double y_offset, double z_offset);
     
    
    

@@ -23,8 +23,9 @@ private:
    std::vector<Link> bodies;
    std::vector<Contact> contacts;
    
-   Eigen::VectorXd phi_accum;
-   Eigen::MatrixXd M_accum; // Mass matrix for all the bods
+   Vector6d phi_accum;
+   Matrix6d M_accum; // Mass matrix for all the bods
+   Vector6d f_accum;
 };
 
 #endif /* Scene_hpp */

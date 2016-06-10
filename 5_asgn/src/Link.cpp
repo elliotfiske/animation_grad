@@ -54,7 +54,7 @@ Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_
    curr_phi.resize(6);
    curr_phi << ang(0), ang(1), ang(2), v(0), v(1), v(2);
 
-   M_mass.resize(6, 6);
+   M_mass = MatrixXd::Zero(6, 6);
    
    double m_12 = mass / 12.0;
    
@@ -84,10 +84,10 @@ Vector6d Link::get_curr_f() {
    
    result -= coriolis;
    
-   return result; 
+   return result;
 }
 
-void Link::check_corner(double x_offset, double y_offset, double z_offset) {
+Contact Link::check_corner(double x_offset, double y_offset, double z_offset) {
    // The vector (x, y, z) is in model-space, I want to convert it to
    //  world space
    Vector3d xi;
@@ -196,6 +196,8 @@ void Link::step(double h) {
    // and b is this huge thing from the worksheet
    Vector6d b = Mi * curr_phi +
       h * (bracket_phi.transpose() * Mi*curr_phi + fg);
+   
+   printf("B here is: %f %f %f %f %f %f\n", b(0), b(1), b(2), b(3), b(4), b(5));
    
    if (contacts.size() > 0) {
       
@@ -322,11 +324,18 @@ void Link::step(double h) {
    curr_E = next_E;
 }
 
+void Link::update_pos(double h) {
+   Matrix4d next_E = integrate(curr_E, curr_phi, h);
+   curr_E = next_E;
+}
+
 // Push this object's matrices onto the stack and draw it
 void Link::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape) {
    M->pushMatrix();
    
    position += curr_phi.segment(3, 3) * 0.1;
+   
+   printf("My posn: %f %f %f\n", position(0), position(1), position(2));
    
    angle += curr_phi(2) * 0.1;
    
