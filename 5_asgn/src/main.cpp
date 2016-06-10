@@ -136,6 +136,7 @@ static void init()
 	shape->init();
    
    scene = make_shared<Scene>();
+   scene->make_links();
 	
 	camera = make_shared<Camera>();
 	
@@ -193,7 +194,7 @@ void render()
 	float x1 = 2.0f;
 	float z0 = -2.0f;
 	float z1 = 2.0f;
-    float y = -2.0f;
+    float y = 0.0f;
 	glColor3f(0.2f, 0.2f, 0.2f);
 	glBegin(GL_LINE_LOOP);
 	glVertex3f(x0, y, z0);

@@ -33,17 +33,27 @@ class Link : public Rigid
 {
 public:
    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-   Link();
+   Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m);
    virtual ~Link();
    
-   std::shared_ptr<Link> parent;
-   std::vector<std::shared_ptr<Link> > children;
+   double width;
+   double height;
+   double depth;
+   
+   double mass;
+   
    
    std::vector<Contact> contacts;
    
    // Rigid transform
    Eigen::Matrix4d curr_E;
    Eigen::VectorXd curr_phi;
+   
+   // Mass MAtrix
+   Eigen::MatrixXd M_mass;
+   
+   // Calculate the current f-component
+   Vector6d get_curr_f();
    
    // For now, just the rotation around the Z axis
    float angle;

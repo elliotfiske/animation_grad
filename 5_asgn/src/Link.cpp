@@ -29,11 +29,16 @@ static void MSKAPI printstr(void *handle,
    printf("%s",str);
 } /* printstr */
 
-Link::Link() 
+Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m)
 : Rigid()
 {
-   angle = 1.41;
-   position << 1.0f, 0.0f, 0.0f;
+   angle = 0;
+   position << pos_x, pos_y, pos_z;
+   
+   width = w;
+   height = h;
+   depth = d;
+   mass = m;
    
    // Set the E transform to the starting position and rotation
    curr_E = Matrix4d::Identity();
@@ -41,18 +46,45 @@ Link::Link()
    curr_E.block<3,3>(0,0) = rot_matrix;
    curr_E.block<3,1>(0,3) = position;
    
-   
    // Start angular velocity as 0, 0, 2.0
    // and positional velocity as -1, 0, 0
-   Vector3d w( 0.0, 0.0, 0.0);
+   Vector3d ang(0.0, 0.0, 0.0);
    Vector3d v(0.0, 0.0, 0.0);
    
    curr_phi.resize(6);
-   curr_phi << w(0), w(1), w(2), v(0), v(1), v(2);
+   curr_phi << ang(0), ang(1), ang(2), v(0), v(1), v(2);
+
+   M_mass.resize(6, 6);
+   
+   double m_12 = mass / 12.0;
+   
+   M_mass(0, 0) = m_12 * (width*width + depth*depth);
+   M_mass(1, 1) = m_12 * (depth*depth + height*height);
+   M_mass(2, 2) = m_12 * (width*width + height*height);
+   M_mass(3, 3) = mass;
+   M_mass(4, 4) = mass;
+   M_mass(5, 5) = mass;
 }
 
 Link::~Link()
 {
+}
+
+Vector6d Link::get_curr_f() {
+   Vector6d result;
+   
+   Vector4d world_gravity(0, -2.0, 0, 0);
+   Vector4d local_gravity = curr_E.transpose() * world_gravity;
+   
+   result.segment(3, 3) = local_gravity.segment(0, 3);
+   
+   Vector6d coriolis = M_mass * curr_phi;
+   coriolis.segment<3>(0) = curr_phi.segment<3>(0).cross(coriolis.segment<3>(0));
+   coriolis.segment<3>(3) = curr_phi.segment<3>(0).cross(coriolis.segment<3>(3));
+   
+   result -= coriolis;
+   
+   return result; 
 }
 
 void Link::check_corner(double x_offset, double y_offset, double z_offset) {
@@ -69,7 +101,7 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset) {
    
    
    // Check if the point is below the water level
-   if (xw(1) < -2.0) {
+   if (xw(1) < -0.0) {
       Contact c;
       c.xw = xw;
       c.nw = Vector3d(0.0, 1.0, 0.0);
