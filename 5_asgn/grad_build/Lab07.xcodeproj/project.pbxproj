@@ -73,6 +73,8 @@
 		88C375A17E364AB5A4C0E1D0 /* Texture.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 37D584A8A6A14DE7853DE297 /* Texture.cpp */; settings = {COMPILER_FLAGS = ""; }; };
 		936BC748340148719D1888A5 /* input.c in Sources */ = {isa = PBXBuildFile; fileRef = A3E742571AF44501831E5416 /* input.c */; settings = {COMPILER_FLAGS = ""; }; };
 		9FEBAE3A776C4CA68B747EB8 /* monitor.c in Sources */ = {isa = PBXBuildFile; fileRef = 1901179CB02D4E72BD96D7CC /* monitor.c */; settings = {COMPILER_FLAGS = ""; }; };
+		C9392C311D079FBA00717FEF /* odeBoxBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AF6541CE020C800DDE9E3 /* odeBoxBox.cpp */; };
+		C9392C341D0A65F600717FEF /* Scene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C9392C321D0A65F600717FEF /* Scene.cpp */; };
 		C93AF6581CE0279800DDE9E3 /* Rigid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = C93AF6551CE020C800DDE9E3 /* Rigid.cpp */; };
 		C96A4BA71CE931F6006BA95B /* libmosek64.7.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A4BA51CE931F6006BA95B /* libmosek64.7.1.dylib */; };
 		C96A4BA81CE931F6006BA95B /* libmosekxx7_1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = C96A4BA61CE931F6006BA95B /* libmosekxx7_1.dylib */; };
@@ -170,6 +172,9 @@
 		BB53C331295543449303106D /* CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = SOURCE_ROOT; };
 		BC66A4F5C31E45A788A514B7 /* GLSL.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 4; name = GLSL.h; path = src/GLSL.h; sourceTree = SOURCE_ROOT; };
 		BF8D2A2E6C224C149CAC63EA /* CMakeLists.txt */ = {isa = PBXFileReference; explicitFileType = sourcecode.text; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = "../../cpe474/deps/glfw-3.1.2/CMakeLists.txt"; sourceTree = SOURCE_ROOT; };
+		C9392C301D079FA800717FEF /* odeBoxBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = odeBoxBox.h; path = src/odeBoxBox.h; sourceTree = "<group>"; };
+		C9392C321D0A65F600717FEF /* Scene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Scene.cpp; path = src/Scene.cpp; sourceTree = "<group>"; };
+		C9392C331D0A65F600717FEF /* Scene.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Scene.hpp; path = src/Scene.hpp; sourceTree = "<group>"; };
 		C93AF6541CE020C800DDE9E3 /* odeBoxBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = odeBoxBox.cpp; path = src/odeBoxBox.cpp; sourceTree = "<group>"; };
 		C93AF6551CE020C800DDE9E3 /* Rigid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Rigid.cpp; path = src/Rigid.cpp; sourceTree = "<group>"; };
 		C93AF6561CE020D100DDE9E3 /* Link.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Link.hpp; path = src/Link.hpp; sourceTree = "<group>"; };
@@ -300,6 +305,8 @@
 		91177EFE3D884C7881A5CCD9 /* Header Files */ = {
 			isa = PBXGroup;
 			children = (
+				C9392C331D0A65F600717FEF /* Scene.hpp */,
+				C9392C301D079FA800717FEF /* odeBoxBox.h */,
 				C96A4BAA1CE9323D006BA95B /* mosek_man.h */,
 				C93AF6561CE020D100DDE9E3 /* Link.hpp */,
 				C93AF6571CE020D100DDE9E3 /* Rigid.h */,
@@ -346,6 +353,7 @@
 				F5735D52F7AF4600815D6B80 /* Shape.cpp */,
 				37D584A8A6A14DE7853DE297 /* Texture.cpp */,
 				6DBFE24135C34AAAA1B830AE /* main.cpp */,
+				C9392C321D0A65F600717FEF /* Scene.cpp */,
 			);
 			name = "Source Files";
 			sourceTree = "<group>";
@@ -534,7 +542,9 @@
 				EB89812450BC4688813AB225 /* GLSL.cpp in Sources */,
 				0B8663DCA3134AD9BF82EE79 /* Link.cpp in Sources */,
 				13FDC7D09ACF43D4B22BB690 /* MatrixStack.cpp in Sources */,
+				C9392C311D079FBA00717FEF /* odeBoxBox.cpp in Sources */,
 				F13DA583580C42BC87BFA3AB /* Program.cpp in Sources */,
+				C9392C341D0A65F600717FEF /* Scene.cpp in Sources */,
 				21572B2CFC944EF892F70567 /* Shape.cpp in Sources */,
 				88C375A17E364AB5A4C0E1D0 /* Texture.cpp in Sources */,
 				F931FCA4309B4215880B15DB /* main.cpp in Sources */,

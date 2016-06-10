@@ -32,7 +32,7 @@ static void MSKAPI printstr(void *handle,
 Link::Link() 
 : Rigid()
 {
-   angle = 0;
+   angle = 1.41;
    position << 1.0f, 0.0f, 0.0f;
    
    // Set the E transform to the starting position and rotation
@@ -119,7 +119,6 @@ void got_error(MSKrescodee r) {
    char symname[MSK_MAX_STR_LEN];
    char desc[MSK_MAX_STR_LEN];
    
-   printf("An error occurred while optimizing.\n");
    MSK_getcodedesc (r,
                     symname,
                     desc);
@@ -293,9 +292,6 @@ void Link::step(double h) {
 
 // Push this object's matrices onto the stack and draw it
 void Link::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape) {
-//   Affine3f transformation_to_world(Translation3f((float) position(0), (float) position(1), (float) position(2)));
-//   Matrix4f i_to_world_E = transformation_to_world.matrix();
-   
    M->pushMatrix();
    
    position += curr_phi.segment(3, 3) * 0.1;

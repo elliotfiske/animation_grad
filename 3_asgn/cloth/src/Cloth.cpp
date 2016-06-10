@@ -529,8 +529,7 @@ void got_error(MSKrescodee r) {
     /* In case of an error print error code and description. */
     char symname[MSK_MAX_STR_LEN];
     char desc[MSK_MAX_STR_LEN];
-    
-    printf("An error occurred while optimizing.\n");
+   
     MSK_getcodedesc (r,
                      symname,
                      desc);

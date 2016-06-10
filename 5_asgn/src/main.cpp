@@ -12,6 +12,7 @@
 #include "Shape.h"
 #include "Texture.h"
 #include "Link.hpp"
+#include "Scene.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -27,7 +28,7 @@ shared_ptr<Camera> camera;
 shared_ptr<Shape> shape;
 shared_ptr<Texture> texture;
 
-shared_ptr<Link> root_link;
+shared_ptr<Scene> scene;
 
 Vector2f mouse;
 
@@ -134,7 +135,7 @@ static void init()
 	shape->loadMesh(RESOURCE_DIR + "cube.obj");
 	shape->init();
    
-    root_link = make_shared<Link>();
+   scene = make_shared<Scene>();
 	
 	camera = make_shared<Camera>();
 	
@@ -150,7 +151,7 @@ static void init()
 void render()
 {
    // Step the link. NOTE: this is BAD you shouldn't update in the render loop.
-   root_link->step(0.016);
+   scene->step_all(0.016);
    
 	// Get current frame buffer size.
 	int width, height;
@@ -226,17 +227,17 @@ void render()
 	glEnd();
 	progSimple->unbind();
    
-	// Draw shape
-	progTex->bind();
-	texture->bind(progTex->getUniform("texture0"), 0);
-	glUniformMatrix4fv(progTex->getUniform("P"), 1, GL_FALSE, P->topMatrix().data());
-
-    root_link->draw(MV.get(), progTex, shape);
-
-	texture->unbind(0);
-	progTex->unbind();
-	
-	//////////////////////////////////////////////////////
+   // Draw shape
+   progTex->bind();
+   texture->bind(progTex->getUniform("texture0"), 0);
+   glUniformMatrix4fv(progTex->getUniform("P"), 1, GL_FALSE, P->topMatrix().data());
+   
+   scene->draw(MV.get(), progTex, shape);
+   
+   texture->unbind(0);
+   progTex->unbind();
+   
+   //////////////////////////////////////////////////////
 	// Cleanup
 	//////////////////////////////////////////////////////
 	
