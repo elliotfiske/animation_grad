@@ -71,7 +71,7 @@ Link::~Link()
 }
 
 Vector6d Link::get_curr_f() {
-   Vector6d result;
+   Vector6d result = Vector6d::Zero();
    
    Vector4d world_gravity(0, -2.0, 0, 0);
    Vector4d local_gravity = curr_E.transpose() * world_gravity;
@@ -87,7 +87,7 @@ Vector6d Link::get_curr_f() {
    return result;
 }
 
-Contact Link::check_corner(double x_offset, double y_offset, double z_offset) {
+void Link::check_corner(double x_offset, double y_offset, double z_offset, vector<Contact>* all_contacts) {
    // The vector (x, y, z) is in model-space, I want to convert it to
    //  world space
    Vector3d xi;
@@ -128,22 +128,22 @@ Contact Link::check_corner(double x_offset, double y_offset, double z_offset) {
       
       c.N_component = c.nw.transpose() * J;
       
-      contacts.push_back(c);
+      all_contacts->push_back(c);
    }
 }
 
-void Link::do_collision() {
+void Link::do_collision(std::vector<Contact>* scene_contacts) {
    contacts.clear();
    
    // Check each corner of me for a collision
-   check_corner(-1, -1, -1);
-   check_corner(-1, -1,  1);
-   check_corner(-1,  1, -1);
-   check_corner(-1,  1,  1);
-   check_corner( 1, -1, -1);
-   check_corner( 1, -1,  1);
-   check_corner( 1,  1, -1);
-   check_corner( 1,  1,  1);
+   check_corner(-1, -1, -1, scene_contacts);
+   check_corner(-1, -1,  1, scene_contacts);
+   check_corner(-1,  1, -1, scene_contacts);
+   check_corner(-1,  1,  1, scene_contacts);
+   check_corner( 1, -1, -1, scene_contacts);
+   check_corner( 1, -1,  1, scene_contacts);
+   check_corner( 1,  1, -1, scene_contacts);
+   check_corner( 1,  1,  1, scene_contacts);
 }
 
 void got_error(MSKrescodee r) {
@@ -188,7 +188,7 @@ void Link::step(double h) {
    
    fg -= coriolis;
    
-   do_collision();
+//   do_collision();
    
    int num_vars = 6 * 1; // TODO: this 1 becomes more if we have more rigidbodies
    

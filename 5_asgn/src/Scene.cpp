@@ -64,7 +64,9 @@ void Scene::step_all(double h) {
    }
    
    // TODO: the collisions, plz
- 
+   for (int ndx = 0; ndx < bodies.size(); ndx++) {
+      bodies[ndx].do_collision(&contacts);
+   }
    
    int num_vars = 6 * bodies.size();
    
@@ -79,11 +81,15 @@ void Scene::step_all(double h) {
       printf("ah snap\n");
    }
    
+   if (b(2) > 999999999) {
+      printf("wut\n");
+   }
+   
 //   bodies[0].step(h);
    
    vector<double> result;
    
-   if (true) {
+   if (contacts.size() > 0) {
       
       // Collisions present! Let's ask our friend Mosek for help solving this one.
       MSKenv_t env = NULL;
@@ -120,7 +126,7 @@ void Scene::step_all(double h) {
       
       //      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
       
-      // Insert the rows of the constraint
+      // Insert the values of the constraint
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
          for (int n_ndx = 0; n_ndx < 6; n_ndx++) {
             r = MSK_putaij(task, contact_ndx, n_ndx, contacts[contact_ndx].N_component[n_ndx]);
