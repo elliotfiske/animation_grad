@@ -7,7 +7,6 @@
 //
 
 #include "Scene.hpp"
-#include "mosek_man.h"
 
 using namespace std;
 using namespace Eigen;
@@ -31,12 +30,14 @@ void got_mad_error(MSKrescodee r) {
 }
 
 Scene::Scene() {
+   MSKrescodee r = MSK_makeenv(&env, NULL);
+   if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_mad_error(r); }
 }
 
 void Scene::make_links() {
 
    
-   Link baby_link(1.0, 1.0, 1.0, 0.0, 2.0, 0.0, 1.0);
+   Link baby_link(1.0, 1.0, 1.0, 0.0, 2.0, -1.0, 1.0);
    bodies.push_back(baby_link);
    
    M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
@@ -55,6 +56,7 @@ void Scene::make_links() {
 
 // Move all the rigid bodies
 void Scene::step_all(double h) {
+   contacts.clear();
    
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       phi_accum.segment<6>(ndx * 6) = bodies[ndx].curr_phi;
@@ -75,7 +77,7 @@ void Scene::step_all(double h) {
    Eigen::Matrix<double, 6, 1> b = M_accum * phi_accum +
                                    h * f_accum;
    
-   printf("B is: %f %f %f %f %f %f\n", b(0), b(1), b(2), b(3), b(4), b(5));
+//   printf("B is: %f %f %f %f %f %f\n", b(0), b(1), b(2), b(3), b(4), b(5));
    
    if (isnan(b(5)) || isnan(b(0)) || isnan(b(2)) || isnan(b(1)) || isnan(b(3)) || isnan(b(4))) {
       printf("ah snap\n");
@@ -92,12 +94,9 @@ void Scene::step_all(double h) {
    if (contacts.size() > 0) {
       
       // Collisions present! Let's ask our friend Mosek for help solving this one.
-      MSKenv_t env = NULL;
-      MSKrescodee r = MSK_makeenv(&env, NULL);
       MSKtask_t task = NULL;
       int num_constraints = contacts.size();
-      
-      if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_mad_error(r); }
+      MSKrescodee r;
       
       r = MSK_maketask(env, num_constraints, num_vars, &task);
       if (r != MSK_RES_OK) { printf("ERror making task\n"); got_mad_error(r); }
@@ -125,6 +124,14 @@ void Scene::step_all(double h) {
       }
       
       //      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
+      MatrixXd N_accum = MatrixXd::Zero(contacts.size(), 6 * bodies.size());
+      for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
+         N_accum.block(contact_ndx, 0, 1, 6 * bodies.size()) = contacts[contact_ndx].N_component.transpose();
+      }
+      double restitution = 1.0;
+      VectorXd Nv = N_accum * phi_accum * restitution;
+      
+//      printf(" rows n cols: %d and %d\n", Nv.rows(), Nv.cols());
       
       // Insert the values of the constraint
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
@@ -135,11 +142,10 @@ void Scene::step_all(double h) {
             }
          }
          
-         r = MSK_putconbound(task, contact_ndx, MSK_BK_LO, 0, +MSK_INFINITY);
+         r = MSK_putconbound(task, contact_ndx, MSK_BK_LO, -Nv(contact_ndx), +MSK_INFINITY);
+         printf("COME ON %f\n", Nv(contact_ndx));
          if (r != MSK_RES_OK) { printf("Error setting contraint bounds\n"); got_mad_error(r); }
       }
-      
-      
       
       // input  mass matrix
       vector<MSKint32t> qsubi;
@@ -187,7 +193,6 @@ void Scene::step_all(double h) {
       }
       
       MSK_deletetask(&task);
-      MSK_deleteenv(&env);
    }
    else {
       phi_accum = M_accum.ldlt().solve(b);

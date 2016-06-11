@@ -32,7 +32,7 @@ static void MSKAPI printstr(void *handle,
 Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m)
 : Rigid()
 {
-   angle = 0;
+   angle = 0.0;
    position << pos_x, pos_y, pos_z;
    
    width = w;
@@ -48,8 +48,8 @@ Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_
    
    // Start angular velocity as 0, 0, 2.0
    // and positional velocity as -1, 0, 0
-   Vector3d ang(0.0, 0.0, 0.0);
-   Vector3d v(0.0, 0.0, 0.0);
+   Vector3d ang(3.0, 1.0, 0.0);
+   Vector3d v(0.0, 0.5, 0.0);
    
    curr_phi.resize(6);
    curr_phi << ang(0), ang(1), ang(2), v(0), v(1), v(2);
@@ -73,7 +73,7 @@ Link::~Link()
 Vector6d Link::get_curr_f() {
    Vector6d result = Vector6d::Zero();
    
-   Vector4d world_gravity(0, -2.0, 0, 0);
+   Vector4d world_gravity(0.0, -1.0, 0.0, 0.0);
    Vector4d local_gravity = curr_E.transpose() * world_gravity;
    
    result.segment(3, 3) = local_gravity.segment(0, 3);

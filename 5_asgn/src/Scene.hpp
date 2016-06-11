@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include "Link.hpp"
+#include "mosek_man.h"
 
 class Scene {
 public:
@@ -22,6 +23,8 @@ public:
 private:
    std::vector<Link> bodies;
    std::vector<Contact> contacts;
+   
+   MSKenv_t env;
    
    Vector6d phi_accum;
    Matrix6d M_accum; // Mass matrix for all the bods

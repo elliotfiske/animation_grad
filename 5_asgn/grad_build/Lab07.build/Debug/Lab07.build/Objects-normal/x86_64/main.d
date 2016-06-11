@@ -159,4 +159,5 @@ dependencies: /Users/elliotfiske/animation_grad/5_asgn/src/main.cpp \
   /Users/elliotfiske/animation_grad/5_asgn/src/Texture.h \
   /Users/elliotfiske/animation_grad/5_asgn/src/Link.hpp \
   /Users/elliotfiske/animation_grad/5_asgn/src/Rigid.h \
-  /Users/elliotfiske/animation_grad/5_asgn/src/Scene.hpp
+  /Users/elliotfiske/animation_grad/5_asgn/src/Scene.hpp \
+  /Users/elliotfiske/animation_grad/5_asgn/src/mosek_man.h
