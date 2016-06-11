@@ -26,9 +26,9 @@ private:
    
    MSKenv_t env;
    
-   Vector6d phi_accum;
-   Matrix6d M_accum; // Mass matrix for all the bods
-   Vector6d f_accum;
+   Eigen::VectorXd phi_accum;
+   Eigen::MatrixXd M_accum; // Mass matrix for all the bods
+   Eigen::VectorXd f_accum;
 };
 
 #endif /* Scene_hpp */

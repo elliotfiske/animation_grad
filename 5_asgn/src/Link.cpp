@@ -29,9 +29,11 @@ static void MSKAPI printstr(void *handle,
    printf("%s",str);
 } /* printstr */
 
-Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m)
+Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m, int i)
 : Rigid()
 {
+   body_ndx = i;
+   
    angle = 0.0;
    position << pos_x, pos_y, pos_z;
    
@@ -91,10 +93,10 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset, vecto
    // The vector (x, y, z) is in model-space, I want to convert it to
    //  world space
    Vector3d xi;
-   xi << x_offset, y_offset, z_offset;
+   xi << x_offset*width, y_offset*height, z_offset*depth;
    
    Vector4d xw;
-   xw << x_offset, y_offset, z_offset, 1.0;
+   xw << x_offset*width, y_offset*height, z_offset*depth, 1.0;
    xw = curr_E * xw;
    
    //    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
@@ -103,6 +105,7 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset, vecto
    // Check if the point is below the water level
    if (xw(1) < -0.0) {
       Contact c;
+      c.rigid_body_other_ndx = -1; // There is no other body, just the ground
       c.xw = xw;
       c.nw = Vector3d(0.0, 1.0, 0.0);
       
@@ -127,6 +130,7 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset, vecto
       c.tangent1w = tangent1;
       
       c.N_component = c.nw.transpose() * J;
+      c.rigid_body_ndx = body_ndx;
       
       all_contacts->push_back(c);
    }
@@ -334,8 +338,6 @@ void Link::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::
    M->pushMatrix();
    
    position += curr_phi.segment(3, 3) * 0.1;
-   
-   printf("My posn: %f %f %f\n", position(0), position(1), position(2));
    
    angle += curr_phi(2) * 0.1;
    

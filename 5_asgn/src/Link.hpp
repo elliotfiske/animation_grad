@@ -21,11 +21,12 @@
 
 struct Contact {
    int rigid_body_ndx;
+   int rigid_body_other_ndx;
    Eigen::Vector4d xw; // World space coords of contact
    Eigen::Vector3d nw; // World space coords of normal
    Eigen::Vector3d tangent0w;
    Eigen::Vector3d tangent1w;
-   Eigen::VectorXd N_component;
+   Vector6d N_component;
 };
 
 
@@ -33,7 +34,7 @@ class Link : public Rigid
 {
 public:
    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-   Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m);
+   Link(double w, double h, double d, double pos_x, double pos_y, double pos_z, double m, int i);
    virtual ~Link();
    
    double width;
@@ -42,6 +43,7 @@ public:
    
    double mass;
    
+   int body_ndx;
    
    std::vector<Contact> contacts;
    

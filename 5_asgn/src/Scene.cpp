@@ -37,12 +37,15 @@ Scene::Scene() {
 void Scene::make_links() {
 
    
-   Link baby_link(1.0, 1.0, 1.0, 0.0, 2.0, -1.0, 1.0);
+   Link baby_link(1.0, 1.0, 1.0, 0.0, 2.0, -1.0, 1.0, 0);
    bodies.push_back(baby_link);
    
+   Link baby_link2(1.0, 1.0, 1.0, 3.0, 4.0, -1.0, 1.0, 1);
+   bodies.push_back(baby_link2);
+   
    M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
-//   phi_accum.resize(bodies.size() * 6);
-//   f_accum.resize(bodies.size() * 6);
+   phi_accum.resize(bodies.size() * 6);
+   f_accum.resize(bodies.size() * 6);
    
    for (int i_ndx = 0; i_ndx < bodies.size() * 6; i_ndx++) {
       phi_accum(i_ndx) = 0;
@@ -74,8 +77,8 @@ void Scene::step_all(double h) {
    
    // Solve Ax = b where A = Mi
    // and b is this huge thing from the worksheet // TODO: nopes
-   Eigen::Matrix<double, 6, 1> b = M_accum * phi_accum +
-                                   h * f_accum;
+   MatrixXd b = M_accum * phi_accum +
+                 h * f_accum;
    
 //   printf("B is: %f %f %f %f %f %f\n", b(0), b(1), b(2), b(3), b(4), b(5));
    
@@ -91,7 +94,7 @@ void Scene::step_all(double h) {
    
    vector<double> result;
    
-   if (contacts.size() > 0) {
+   if (true) {//contacts.size() > 0) {
       
       // Collisions present! Let's ask our friend Mosek for help solving this one.
       MSKtask_t task = NULL;
@@ -116,7 +119,7 @@ void Scene::step_all(double h) {
       
       for (int j = 0; j < num_vars; j++) {
          
-         r = MSK_putcj(task, j, -b[j]); // TODO: idk whats supposed to go here
+         r = MSK_putcj(task, j, -b(j, 0)); // TODO: idk whats supposed to go here
          if (r != MSK_RES_OK) { printf("Error adding linear term\n"); got_mad_error(r); }
          
          r = MSK_putvarbound(task, j, MSK_BK_FR, -MSK_INFINITY, +MSK_INFINITY);
@@ -126,24 +129,26 @@ void Scene::step_all(double h) {
       //      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
       MatrixXd N_accum = MatrixXd::Zero(contacts.size(), 6 * bodies.size());
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
-         N_accum.block(contact_ndx, 0, 1, 6 * bodies.size()) = contacts[contact_ndx].N_component.transpose();
+         N_accum.block(contact_ndx, 6 * contacts[contact_ndx].rigid_body_ndx, 1, 6) = contacts[contact_ndx].N_component.transpose();
       }
-      double restitution = 1.0;
+      double restitution = 0.7;
       VectorXd Nv = N_accum * phi_accum * restitution;
       
-//      printf(" rows n cols: %d and %d\n", Nv.rows(), Nv.cols());
+      printf(" rows: %ld\n", Nv.rows());
       
       // Insert the values of the constraint
-      for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
-         for (int n_ndx = 0; n_ndx < 6; n_ndx++) {
-            r = MSK_putaij(task, contact_ndx, n_ndx, contacts[contact_ndx].N_component[n_ndx]);
+      for (int contact_ndx = 0; contact_ndx < N_accum.rows(); contact_ndx++) {
+         for (int j = 0; j < N_accum.cols(); j++) {
+            r = MSK_putaij(task, contact_ndx, j, N_accum(contact_ndx, j));
             if (r != MSK_RES_OK) {
                printf("Error setting constraint\n"); got_mad_error(r);
             }
+            
+            printf("%.2f ", N_accum(contact_ndx, j));
          }
          
          r = MSK_putconbound(task, contact_ndx, MSK_BK_LO, -Nv(contact_ndx), +MSK_INFINITY);
-         printf("COME ON %f\n", Nv(contact_ndx));
+         printf("\n");
          if (r != MSK_RES_OK) { printf("Error setting contraint bounds\n"); got_mad_error(r); }
       }
       
@@ -187,7 +192,7 @@ void Scene::step_all(double h) {
       
       for (int ndx = 0; ndx < bodies.size(); ndx++) {
          Vector6d new_phi;
-         new_phi << result[ndx + 0], result[ndx + 1], result[ndx + 2], result[ndx + 3], result[ndx + 4], result[ndx + 5];
+         new_phi << result[ndx*6 + 0], result[ndx*6 + 1], result[ndx*6 + 2], result[ndx*6 + 3], result[ndx*6 + 4], result[ndx*6 + 5];
          
          bodies[ndx].curr_phi = new_phi;
       }
@@ -205,7 +210,7 @@ void Scene::step_all(double h) {
       }
    }
    
-   printf("%f, %f, %f, %f, %f, %f\n", phi_accum(0), phi_accum(1), phi_accum(2), phi_accum(3), phi_accum(4), phi_accum(5));
+//   printf("%f, %f, %f, %f, %f, %f\n", phi_accum(0), phi_accum(1), phi_accum(2), phi_accum(3), phi_accum(4), phi_accum(5));
    
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       bodies[ndx].update_pos(h);
