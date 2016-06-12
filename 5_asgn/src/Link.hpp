@@ -19,6 +19,11 @@
 #include "Rigid.h"
 #include "Shape.h"
 
+template <typename T>
+T clip(const T& n, const T& lower, const T& upper) {
+   return std::max(lower, std::min(n, upper));
+}
+
 struct Contact {
    int rigid_body_ndx;
    int rigid_body_other_ndx;
@@ -52,10 +57,10 @@ public:
    
    // Rigid transform
    Eigen::Matrix4d curr_E;
-   Eigen::VectorXd curr_phi;
+   Vector6d curr_phi;
    
    // Mass MAtrix
-   Eigen::MatrixXd M_mass;
+   Matrix6d M_mass;
    
    // Calculate the current f-component
    Vector6d get_curr_f();

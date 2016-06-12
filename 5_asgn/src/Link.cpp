@@ -12,6 +12,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <Eigen/Geometry>
+#include <iostream>
 
 #include "GLSL.h"
 #include "Program.h"
@@ -78,16 +79,25 @@ Link::~Link()
 Vector6d Link::get_curr_f() {
    Vector6d result = Vector6d::Zero();
    
-   Vector4d world_gravity(0.0, -9.0, 0.0, 0.0);
-   Vector4d local_gravity = curr_E.transpose() * world_gravity;
+   Vector3d world_gravity(0.0, -2.0, 0.0);
+   Vector3d local_gravity = curr_E.block<3,3>(0,0).transpose() * world_gravity;
    
-   result.segment(3, 3) = local_gravity.segment(0, 3);
+   result.segment(3, 3) = local_gravity;
    
    Vector6d coriolis = M_mass * curr_phi;
    coriolis.segment<3>(0) = curr_phi.segment<3>(0).cross(coriolis.segment<3>(0));
    coriolis.segment<3>(3) = curr_phi.segment<3>(0).cross(coriolis.segment<3>(3));
    
    result -= coriolis;
+   
+   if (abs(result(4)) > 1000) {
+      printf( "hmm");
+   }
+   
+   printf("FORCE: \n");
+   
+   const IOFormat fmt(2, DontAlignCols, "\t", " ", "", "", "", "");
+   cout << result.format(fmt) << endl;
    
    return result;
 }
@@ -332,6 +342,9 @@ void Link::step(double h) {
 }
 
 void Link::update_pos(double h) {
+   for (int i = 0; i < 6; i++) {
+      curr_phi(i) = clip(curr_phi(i), -10.0, 10.0);
+   }
    Matrix4d next_E = integrate(curr_E, curr_phi, h);
    curr_E = next_E;
 }

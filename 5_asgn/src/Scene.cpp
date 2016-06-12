@@ -42,8 +42,9 @@ void Scene::make_links() {
    int scene_num = 2;
    switch (scene_num) {
       case 2: {
-         for (int i = 0; i < 2; i++) {
-            Link lol(0.5, 0.5, 0.5, 0.0, 0.25 + i * 0.6, 0.0, 1.0, i);
+         for (int i = 0; i < 20; i++) {
+            double tower_block_height = 0.5;
+            Link lol(0.5, tower_block_height, 0.5, 0.0, (tower_block_height / 2) + i * (tower_block_height + 0.1), 0.0, 0.1, i);
             bodies.push_back(lol);
          }
          break;
@@ -79,8 +80,9 @@ void Scene::make_links() {
          break;
    }
    
-//   Link wall1(1.0, 20.0, 4.0, 6.0, 11.0, 0.0, 1.0, bodies.size());
-//   bodies.push_back(wall1);
+   Link wall1(1.0, 20.0, 4.0, 6.0, 11.0, 0.0, 1.0, bodies.size());
+   wall1.curr_phi.tail(3) = Vector3d(-2.0, 0.0, 0.0);
+   bodies.push_back(wall1);
    
    burd = Link(0.5, 0.5, 0.5, -8.0, 0.25, 0.0, 1.0, bodies.size());
    burd.mass = 10;
@@ -152,7 +154,7 @@ Eigen::Vector3d Scene::step_all(double h) {
             Contact c;
             c.xw << muh_contacts.positions[ndx], 1.0;
             
-            c.nw = muh_contacts.normal;
+            c.nw = -muh_contacts.normal;
             
             c.rigid_body_ndx = bod_a.body_ndx;
             c.rigid_body_other_ndx = bod_b.body_ndx;
@@ -256,7 +258,7 @@ Eigen::Vector3d Scene::step_all(double h) {
       double restitution = 0.9;
       VectorXd Nv = N_accum * phi_accum * restitution;
       
-      printf("Nv size: %ld\n", Nv.rows());
+//      printf("Nv size: %ld\n", Nv.rows());
       
       // Insert the values of the constraint
       for (int contact_ndx = 0; contact_ndx < N_accum.rows(); contact_ndx++) {
@@ -315,7 +317,7 @@ Eigen::Vector3d Scene::step_all(double h) {
          
          bodies[ndx].curr_phi = new_phi;
          if (bodies[ndx].fake_momentum != Vector3d::Zero()) {
-            bodies[ndx].curr_phi.tail(3) = bodies[ndx].fake_momentum;
+//            bodies[ndx].curr_phi.tail(3) = bodies[ndx].fake_momentum;
             bodies[ndx].fake_momentum = Vector3d::Zero();
          }
       }
