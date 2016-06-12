@@ -83,6 +83,7 @@ void Scene::make_links() {
    bodies.push_back(wall1);
    
    burd = Link(0.5, 0.5, 0.5, -8.0, 0.25, 0.0, 1.0, bodies.size());
+   burd.mass = 1000;
 //   burd.missile = true;
    
    M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
@@ -111,6 +112,7 @@ void Scene::finish_off() {
    
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       M_accum.block<6, 6>(ndx * 6, ndx*6) = bodies[ndx].M_mass;
+      bodies[ndx].body_ndx = ndx;
    }
 }
 
@@ -151,16 +153,18 @@ Eigen::Vector3d Scene::step_all(double h) {
             
             c_a.nw = muh_contacts.normal;
             c_b.nw = muh_contacts.normal;
+            
             c_a.rigid_body_ndx = bod_a.body_ndx;
-            c_a.rigid_body_other_ndx = -1;
+            c_a.rigid_body_other_ndx = bod_b.body_ndx;
+            
             c_b.rigid_body_ndx = bod_b.body_ndx;
-            c_a.rigid_body_other_ndx = -1;
+            c_b.rigid_body_other_ndx = bod_a.body_ndx;
             
             Vector4d xi_a = bod_a.curr_E.inverse() * c_a.xw;
             Vector4d xi_b = bod_b.curr_E.inverse() * c_b.xw;
             
             Matrix3x6d J_a = bod_a.curr_E.block<3,3>(0,0) * gamma(xi_a.head(3));
-            c_a.N_component = c_a.nw.transpose() * J_a;
+            c_a.N_component = -c_a.nw.transpose() * J_a;
 //            Vector3d vw_a = bod_a.curr_phi * J_a;
             
             
