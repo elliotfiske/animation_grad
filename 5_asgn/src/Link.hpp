@@ -41,6 +41,9 @@ public:
    double height;
    double depth;
    
+   bool missile;
+   Eigen::Vector3d fake_momentum;
+   
    double mass;
    
    int body_ndx;

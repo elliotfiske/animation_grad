@@ -12,12 +12,13 @@
 #include <stdio.h>
 #include "Link.hpp"
 #include "mosek_man.h"
+#include "Rigid.h"
 
-class Scene {
+class Scene : public Rigid {
 public:
    Scene();
    void make_links();
-   void step_all(double time);
+   Eigen::Vector3d step_all(double time);
    void draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape);
    
 private:

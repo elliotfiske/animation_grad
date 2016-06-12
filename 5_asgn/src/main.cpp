@@ -47,6 +47,9 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 static void char_callback(GLFWwindow *window, unsigned int key)
 {
 	keyToggles[key] = !keyToggles[key];
+   if (key == 'r') {
+      scene->make_links();
+   }
 }
 
 float even_joint_angles = 0;
@@ -152,7 +155,8 @@ static void init()
 void render()
 {
    // Step the link. NOTE: this is BAD you shouldn't update in the render loop.
-   scene->step_all(0.016);
+   scene->step_all(0.016).cast<float>() - Vector3f(1.0f, 0.0f, 0.0f);
+   
    
 	// Get current frame buffer size.
 	int width, height;

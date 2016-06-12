@@ -154,4 +154,5 @@ dependencies: /Users/elliotfiske/animation_grad/5_asgn/src/Scene.cpp \
   /Users/elliotfiske/animation_grad/5_asgn/src/MatrixStack.h \
   /Users/elliotfiske/animation_grad/5_asgn/src/Rigid.h \
   /Users/elliotfiske/animation_grad/5_asgn/src/Shape.h \
-  /Users/elliotfiske/animation_grad/5_asgn/src/mosek_man.h
+  /Users/elliotfiske/animation_grad/5_asgn/src/mosek_man.h \
+  /Users/elliotfiske/animation_grad/5_asgn/src/odeBoxBox.h

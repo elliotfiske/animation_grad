@@ -29,7 +29,8 @@ public:
 	void mouseClicked(double x, double y, bool shift, bool ctrl, bool alt);
 	void mouseMoved(double x, double y);
 	void applyProjectionMatrix(std::shared_ptr<MatrixStack> P) const;
-	void applyViewMatrix(std::shared_ptr<MatrixStack> MV) const;
+   void applyViewMatrix(std::shared_ptr<MatrixStack> MV) const;
+   Eigen::Vector3f translations;
 	
 private:
 	float aspect;
@@ -37,7 +38,6 @@ private:
 	float znear;
 	float zfar;
 	Eigen::Vector2f rotations;
-	Eigen::Vector3f translations;
 	Eigen::Vector2f mousePrev;
 	int state;
 	float rfactor;

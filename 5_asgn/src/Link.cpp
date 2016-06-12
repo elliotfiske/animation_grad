@@ -42,6 +42,9 @@ Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_
    depth = d;
    mass = m;
    
+   missile = false;
+   fake_momentum = Vector3d::Zero();
+   
    // Set the E transform to the starting position and rotation
    curr_E = Matrix4d::Identity();
    Matrix3d rot_matrix = AngleAxisd(angle, Vector3d::UnitZ()).matrix();
@@ -50,8 +53,8 @@ Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_
    
    // Start angular velocity as 0, 0, 2.0
    // and positional velocity as -1, 0, 0
-   Vector3d ang(3.0, 1.0, 0.0);
-   Vector3d v(0.0, 0.5, 0.0);
+   Vector3d ang(0.0, 0.0, 0.0);
+   Vector3d v(0.0, 0.0, 0.0);
    
    curr_phi.resize(6);
    curr_phi << ang(0), ang(1), ang(2), v(0), v(1), v(2);
@@ -93,10 +96,10 @@ void Link::check_corner(double x_offset, double y_offset, double z_offset, vecto
    // The vector (x, y, z) is in model-space, I want to convert it to
    //  world space
    Vector3d xi;
-   xi << x_offset*width, y_offset*height, z_offset*depth;
+   xi << x_offset*width/2, y_offset*height/2, z_offset*depth/2;
    
    Vector4d xw;
-   xw << x_offset*width, y_offset*height, z_offset*depth, 1.0;
+   xw << x_offset*width/2, y_offset*height/2, z_offset*depth/2, 1.0;
    xw = curr_E * xw;
    
    //    printf("x_world... %f %f %f\n", xi(0), xi(1), xi(2));
@@ -342,6 +345,8 @@ void Link::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::
    angle += curr_phi(2) * 0.1;
    
    M->multMatrix(curr_E.cast<float>());
+   M->scale(Vector3f(width/2, height/2, depth/2));
+   
    glUniformMatrix4fv(prog->getUniform("MV"), 1, GL_FALSE, M->topMatrix().data());
    shape->draw(prog);
    

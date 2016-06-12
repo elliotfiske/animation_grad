@@ -3,15 +3,15 @@
 #include <iostream>
 
 Camera::Camera() :
+   translations(0.0f, -0.5f, -8.0f),
 	aspect(1.0f),
 	fovy(45.0f),
 	znear(0.1f),
 	zfar(1000.0f),
-	rotations(0.0, 0.0),
-	translations(0.0f, 0.0f, -5.0f),
+	rotations(0.0, 15.0),
 	rfactor(0.2f),
 	tfactor(0.001f),
-	sfactor(0.005f)
+   sfactor(0.005f)
 {
 }
 

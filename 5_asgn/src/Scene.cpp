@@ -7,6 +7,7 @@
 //
 
 #include "Scene.hpp"
+#include "odeBoxBox.h"
 
 using namespace std;
 using namespace Eigen;
@@ -35,13 +36,57 @@ Scene::Scene() {
 }
 
 void Scene::make_links() {
-
+   bodies.clear();
    
-   Link baby_link(1.0, 1.0, 1.0, 0.0, 2.0, -1.0, 1.0, 0);
-   bodies.push_back(baby_link);
+   int scene_num = 2;
+   switch (scene_num) {
+      case 2:
+         for (int i = 0; i < 20; i++) {
+            Link lol(0.5, 0.5, 0.5, 0.0, 0.25 + i * 0.5, 0.0, 1.0, i);
+            bodies.push_back(lol);
+         }
+         
+         Link truck2(10.0, 10.0, 10.0, 3.0, 5.0, 50.0, 1.0, bodies.size()); //truck
+         truck2.curr_phi(5) = -20.0;
+         bodies.push_back(truck2);
+         
+         break;
+      case 3:
+         Link baby_link(0.2, 3.0, 1.0, -1.0, 1.5, 0.0, 1.0, bodies.size()); // leg 1
+         bodies.push_back(baby_link);
+         
+         Link baby_link2(0.2, 3.0, 1.0, 1.0, 1.5, 0.0, 1.0, bodies.size()); // leg 1
+         bodies.push_back(baby_link2);
+         
+         Link baby_link3(2.1, 0.5, 1.0, 0.0, 3.25, 0.0, 1.0, bodies.size()); // hips
+         bodies.push_back(baby_link3);
+         
+         Link baby_link4(0.6, 2.0, 1.0, 0.0, 4.5, 0.0, 1.0, bodies.size()); // torso
+         bodies.push_back(baby_link4);
+         
+         Link baby_link5(3.0, 0.5, 1.0, 0.0, 5.75, 0.0, 1.0, bodies.size()); // shoulders
+         bodies.push_back(baby_link5);
+         
+         Link baby_link6(0.2, 1.0, 1.0, -1.5, 6.5, 0.0, 1.0, bodies.size()); // arm 1
+         bodies.push_back(baby_link6);
+         
+         Link baby_link7(0.2, 1.0, 1.0, 1.5, 9.5, 0.0, 1.0, bodies.size()); // arm 2
+         bodies.push_back(baby_link7);
+         
+//         Link baby_link8(0.4, 2.0, 0.5, 0.0, 7.0, 0.0, 1.0, bodies.size()); // neck
+//         bodies.push_back(baby_link8);
+         
+         Link baby_link9(2.0, 2.0, 1.0, 0.0, 9.0, 0.0, 1.0, bodies.size()); // head
+         bodies.push_back(baby_link9);
+         
+         Link truck(10.0, 10.0, 10.0, 3.0, 5.0, 50.0, 1.0, bodies.size()); //truck
+         truck.curr_phi(5) = -20.0;
+         truck.mass = 1000.0;
+         truck.missile = true;
+         bodies.push_back(truck);
+         break;
+   }
    
-   Link baby_link2(1.0, 1.0, 1.0, 3.0, 4.0, -1.0, 1.0, 1);
-   bodies.push_back(baby_link2);
    
    M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
    phi_accum.resize(bodies.size() * 6);
@@ -58,7 +103,7 @@ void Scene::make_links() {
 }
 
 // Move all the rigid bodies
-void Scene::step_all(double h) {
+Eigen::Vector3d Scene::step_all(double h) {
    contacts.clear();
    
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
@@ -71,6 +116,57 @@ void Scene::step_all(double h) {
    // TODO: the collisions, plz
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       bodies[ndx].do_collision(&contacts);
+   }
+   
+   for (int a = 0; a < bodies.size(); a++) {
+      for (int b = a + 1; b < bodies.size(); b++) {
+         if (a == b) {
+            continue;
+         }
+         
+         Link bod_a = bodies[a];
+         Vector3d whd_a(bod_a.width, bod_a.height, bod_a.depth);
+         
+         Link bod_b = bodies[b];
+         Vector3d whd_b(bod_b.width, bod_b.height, bod_b.depth);
+         
+         Contacts muh_contacts = odeBoxBox(bod_a.curr_E, whd_a, bod_b.curr_E, whd_b);
+         
+         for (int ndx = 0; ndx < muh_contacts.count; ndx++) {
+            Contact c_a;
+            Contact c_b;
+            c_a.xw << muh_contacts.positions[ndx], 1.0;
+            c_b.xw << muh_contacts.positions[ndx], 1.0;
+            
+            c_a.nw = muh_contacts.normal;
+            c_b.nw = muh_contacts.normal;
+            c_a.rigid_body_ndx = bod_a.body_ndx;
+            c_b.rigid_body_ndx = bod_b.body_ndx;
+            
+            Vector4d xi_a = bod_a.curr_E.inverse() * c_a.xw;
+            Vector4d xi_b = bod_b.curr_E.inverse() * c_b.xw;
+            
+            Matrix3x6d J_a = bod_a.curr_E.block<3,3>(0,0) * gamma(xi_a.head(3));
+            c_a.N_component = c_a.nw.transpose() * J_a;
+//            Vector3d vw_a = bod_a.curr_phi * J_a;
+            
+            
+            Matrix3x6d J_b = bod_b.curr_E.block<3,3>(0,0) * gamma(xi_b.head(3));
+            c_b.N_component = c_b.nw.transpose() * J_b * 1000;
+//            Vector3d vw_b = bod_b.curr_phi * J_b;
+            
+            contacts.push_back(c_a);
+            contacts.push_back(c_b);
+            
+            if (bodies[a].missile) {
+               bodies[b].fake_momentum = bodies[a].curr_phi.tail(3);
+            }
+            
+            if (bodies[b].missile) {
+               bodies[a].fake_momentum = bodies[b].curr_phi.tail(3);
+            }
+         }
+      }
    }
    
    int num_vars = 6 * bodies.size();
@@ -94,7 +190,7 @@ void Scene::step_all(double h) {
    
    vector<double> result;
    
-   if (true) {//contacts.size() > 0) {
+   if (contacts.size() > 0) {
       
       // Collisions present! Let's ask our friend Mosek for help solving this one.
       MSKtask_t task = NULL;
@@ -134,7 +230,6 @@ void Scene::step_all(double h) {
       double restitution = 0.7;
       VectorXd Nv = N_accum * phi_accum * restitution;
       
-      printf(" rows: %ld\n", Nv.rows());
       
       // Insert the values of the constraint
       for (int contact_ndx = 0; contact_ndx < N_accum.rows(); contact_ndx++) {
@@ -143,12 +238,9 @@ void Scene::step_all(double h) {
             if (r != MSK_RES_OK) {
                printf("Error setting constraint\n"); got_mad_error(r);
             }
-            
-            printf("%.2f ", N_accum(contact_ndx, j));
          }
          
          r = MSK_putconbound(task, contact_ndx, MSK_BK_LO, -Nv(contact_ndx), +MSK_INFINITY);
-         printf("\n");
          if (r != MSK_RES_OK) { printf("Error setting contraint bounds\n"); got_mad_error(r); }
       }
       
@@ -195,6 +287,10 @@ void Scene::step_all(double h) {
          new_phi << result[ndx*6 + 0], result[ndx*6 + 1], result[ndx*6 + 2], result[ndx*6 + 3], result[ndx*6 + 4], result[ndx*6 + 5];
          
          bodies[ndx].curr_phi = new_phi;
+         if (bodies[ndx].fake_momentum != Vector3d::Zero()) {
+            bodies[ndx].curr_phi.tail(3) = bodies[ndx].fake_momentum;
+            bodies[ndx].fake_momentum = Vector3d::Zero();
+         }
       }
       
       MSK_deletetask(&task);
@@ -216,6 +312,7 @@ void Scene::step_all(double h) {
       bodies[ndx].update_pos(h);
    }
 
+   return bodies[0].curr_E.block<3, 1>(0, 3);
 }
 
 // Draw everybody in the scene
