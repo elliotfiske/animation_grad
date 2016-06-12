@@ -78,7 +78,7 @@ Link::~Link()
 Vector6d Link::get_curr_f() {
    Vector6d result = Vector6d::Zero();
    
-   Vector4d world_gravity(0.0, -1.0, 0.0, 0.0);
+   Vector4d world_gravity(0.0, -9.0, 0.0, 0.0);
    Vector4d local_gravity = curr_E.transpose() * world_gravity;
    
    result.segment(3, 3) = local_gravity.segment(0, 3);

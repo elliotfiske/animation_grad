@@ -30,7 +30,8 @@ void got_mad_error(MSKrescodee r) {
    printf("Error %s - '%s'\n",symname,desc);
 }
 
-Scene::Scene() {
+Scene::Scene() :
+burd(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1) {
    MSKrescodee r = MSK_makeenv(&env, NULL);
    if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_mad_error(r); }
 }
@@ -40,22 +41,18 @@ void Scene::make_links() {
    
    int scene_num = 2;
    switch (scene_num) {
-      case 2:
+      case 2: {
          for (int i = 0; i < 20; i++) {
-            Link lol(0.5, 0.5, 0.5, 0.0, 0.25 + i * 0.5, 0.0, 1.0, i);
-            bodies.push_back(lol);
+            Link lol(0.5, 0.5, 0.5, 0.0, 0.25 + i * 0.6, 0.0, 1.0, i);
+//            bodies.push_back(lol);
          }
-         
-         Link truck2(10.0, 10.0, 10.0, 3.0, 5.0, 50.0, 1.0, bodies.size()); //truck
-         truck2.curr_phi(5) = -20.0;
-         bodies.push_back(truck2);
-         
          break;
+      }
       case 3:
          Link baby_link(0.2, 3.0, 1.0, -1.0, 1.5, 0.0, 1.0, bodies.size()); // leg 1
          bodies.push_back(baby_link);
          
-         Link baby_link2(0.2, 3.0, 1.0, 1.0, 1.5, 0.0, 1.0, bodies.size()); // leg 1
+         Link baby_link2(0.2, 3.0, 1.0, 1.0, 1.5, 0.0, 1.0, bodies.size()); // leg 2
          bodies.push_back(baby_link2);
          
          Link baby_link3(2.1, 0.5, 1.0, 0.0, 3.25, 0.0, 1.0, bodies.size()); // hips
@@ -79,14 +76,14 @@ void Scene::make_links() {
          Link baby_link9(2.0, 2.0, 1.0, 0.0, 9.0, 0.0, 1.0, bodies.size()); // head
          bodies.push_back(baby_link9);
          
-         Link truck(10.0, 10.0, 10.0, 3.0, 5.0, 50.0, 1.0, bodies.size()); //truck
-         truck.curr_phi(5) = -20.0;
-         truck.mass = 1000.0;
-         truck.missile = true;
-         bodies.push_back(truck);
          break;
    }
    
+   Link wall1(1.0, 20.0, 4.0, 6.0, 10.1, 0.0, 1.0, bodies.size());
+   bodies.push_back(wall1);
+   
+   burd = Link(0.5, 0.5, 0.5, -8.0, 0.25, 0.0, 1.0, bodies.size());
+//   burd.missile = true;
    
    M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
    phi_accum.resize(bodies.size() * 6);
@@ -100,6 +97,21 @@ void Scene::make_links() {
       M_accum.block<6, 6>(ndx * 6, ndx*6) = bodies[ndx].M_mass;
    }
    
+   finish_off();
+}
+
+void Scene::finish_off() {
+   M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
+   phi_accum.resize(bodies.size() * 6);
+   f_accum.resize(bodies.size() * 6);
+   
+   for (int i_ndx = 0; i_ndx < bodies.size() * 6; i_ndx++) {
+      phi_accum(i_ndx) = 0;
+   }
+   
+   for (int ndx = 0; ndx < bodies.size(); ndx++) {
+      M_accum.block<6, 6>(ndx * 6, ndx*6) = bodies[ndx].M_mass;
+   }
 }
 
 // Move all the rigid bodies
@@ -113,7 +125,6 @@ Eigen::Vector3d Scene::step_all(double h) {
       f_accum.segment<6>(ndx * 6) = bodies[ndx].get_curr_f();
    }
    
-   // TODO: the collisions, plz
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       bodies[ndx].do_collision(&contacts);
    }
@@ -141,7 +152,9 @@ Eigen::Vector3d Scene::step_all(double h) {
             c_a.nw = muh_contacts.normal;
             c_b.nw = muh_contacts.normal;
             c_a.rigid_body_ndx = bod_a.body_ndx;
+            c_a.rigid_body_other_ndx = -1;
             c_b.rigid_body_ndx = bod_b.body_ndx;
+            c_a.rigid_body_other_ndx = -1;
             
             Vector4d xi_a = bod_a.curr_E.inverse() * c_a.xw;
             Vector4d xi_b = bod_b.curr_E.inverse() * c_b.xw;
@@ -152,7 +165,7 @@ Eigen::Vector3d Scene::step_all(double h) {
             
             
             Matrix3x6d J_b = bod_b.curr_E.block<3,3>(0,0) * gamma(xi_b.head(3));
-            c_b.N_component = c_b.nw.transpose() * J_b * 1000;
+            c_b.N_component = c_b.nw.transpose() * J_b;
 //            Vector3d vw_b = bod_b.curr_phi * J_b;
             
             contacts.push_back(c_a);
@@ -227,9 +240,10 @@ Eigen::Vector3d Scene::step_all(double h) {
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
          N_accum.block(contact_ndx, 6 * contacts[contact_ndx].rigid_body_ndx, 1, 6) = contacts[contact_ndx].N_component.transpose();
       }
-      double restitution = 0.7;
+      double restitution = 0.9;
       VectorXd Nv = N_accum * phi_accum * restitution;
       
+      printf("Nv size: %ld\n", Nv.rows());
       
       // Insert the values of the constraint
       for (int contact_ndx = 0; contact_ndx < N_accum.rows(); contact_ndx++) {
@@ -315,9 +329,23 @@ Eigen::Vector3d Scene::step_all(double h) {
    return bodies[0].curr_E.block<3, 1>(0, 3);
 }
 
+bool poop = true;
+
 // Draw everybody in the scene
 void Scene::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape) {
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       bodies[ndx].draw(M, prog, shape);
    }
+   
+   if (poop) {
+      burd.draw(M, prog, shape);
+   }
+}
+
+
+void Scene::activate_burd() {
+   burd.fake_momentum = Vector3d(9.0, 8.0, 0.0);
+   bodies.push_back(burd);
+   finish_off();
+   poop = false;
 }

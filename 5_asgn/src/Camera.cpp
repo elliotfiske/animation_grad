@@ -3,7 +3,7 @@
 #include <iostream>
 
 Camera::Camera() :
-   translations(0.0f, -0.5f, -8.0f),
+   translations(1.5f, -0.5f, -18.0f),
 	aspect(1.0f),
 	fovy(45.0f),
 	znear(0.1f),

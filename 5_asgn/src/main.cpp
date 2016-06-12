@@ -32,6 +32,14 @@ shared_ptr<Scene> scene;
 
 Vector2f mouse;
 
+
+
+int muh_state = 0;
+int MUH_BEFORE = 0;
+int MUH_DRAGGING = 1;
+int MUH_FLYING = 2;
+int MUH_REPLAYING = 3;
+
 static void error_callback(int error, const char *description)
 {
 	cerr << description << endl;
@@ -44,25 +52,31 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 	}
 }
 
-static void char_callback(GLFWwindow *window, unsigned int key)
-{
+static void char_callback(GLFWwindow *window, unsigned int key) {
 	keyToggles[key] = !keyToggles[key];
    if (key == 'r') {
       scene->make_links();
+   }
+   
+   if (key == ' ') {
+      muh_state = MUH_FLYING;
+      scene->activate_burd();
    }
 }
 
 float even_joint_angles = 0;
 float odd_joint_angles = 0;
 
+double thing = 32;
+
 static void cursor_position_callback(GLFWwindow* window, double xmouse, double ymouse)
 {
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 	if(state == GLFW_PRESS) {
-		bool altL = glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS;
-		bool altR = glfwGetKey(window, GLFW_KEY_RIGHT_ALT) == GLFW_PRESS;
-		bool alt = altL || altR;
-		if(alt) {
+		if(muh_state == MUH_BEFORE) {
+         muh_state = MUH_DRAGGING;
+      }
+      else if (muh_state == MUH_DRAGGING) {
 			// Move the links
 			if(mouse(0) == 0.0f && mouse(1) == 0.0f) {
 				// Initial call
@@ -79,6 +93,10 @@ static void cursor_position_callback(GLFWwindow* window, double xmouse, double y
          
 			cout << dx << " " << dy << endl;
 			mouse << xmouse, ymouse;
+         
+         scene->burd.curr_E.block<3, 1>(0, 3) += Vector3d(dx/thing, -dy/ thing, 0);
+         
+         
 		} else {
 			camera->mouseMoved(xmouse, ymouse);
 		}
