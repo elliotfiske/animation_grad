@@ -42,9 +42,9 @@ void Scene::make_links() {
    int scene_num = 2;
    switch (scene_num) {
       case 2: {
-         for (int i = 0; i < 20; i++) {
+         for (int i = 0; i < 2; i++) {
             Link lol(0.5, 0.5, 0.5, 0.0, 0.25 + i * 0.6, 0.0, 1.0, i);
-//            bodies.push_back(lol);
+            bodies.push_back(lol);
          }
          break;
       }
@@ -79,11 +79,11 @@ void Scene::make_links() {
          break;
    }
    
-   Link wall1(1.0, 20.0, 4.0, 6.0, 10.1, 0.0, 1.0, bodies.size());
-   bodies.push_back(wall1);
+//   Link wall1(1.0, 20.0, 4.0, 6.0, 11.0, 0.0, 1.0, bodies.size());
+//   bodies.push_back(wall1);
    
    burd = Link(0.5, 0.5, 0.5, -8.0, 0.25, 0.0, 1.0, bodies.size());
-   burd.mass = 1000;
+   burd.mass = 10;
 //   burd.missile = true;
    
    M_accum = MatrixXd::Zero(bodies.size() * 6, bodies.size() * 6);
@@ -119,6 +119,7 @@ void Scene::finish_off() {
 // Move all the rigid bodies
 Eigen::Vector3d Scene::step_all(double h) {
    contacts.clear();
+   num_contacts = 0;
    
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       phi_accum.segment<6>(ndx * 6) = bodies[ndx].curr_phi;
@@ -130,6 +131,8 @@ Eigen::Vector3d Scene::step_all(double h) {
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
       bodies[ndx].do_collision(&contacts);
    }
+   
+   num_contacts = contacts.size(); // weird stuff
    
    for (int a = 0; a < bodies.size(); a++) {
       for (int b = a + 1; b < bodies.size(); b++) {
@@ -146,34 +149,25 @@ Eigen::Vector3d Scene::step_all(double h) {
          Contacts muh_contacts = odeBoxBox(bod_a.curr_E, whd_a, bod_b.curr_E, whd_b);
          
          for (int ndx = 0; ndx < muh_contacts.count; ndx++) {
-            Contact c_a;
-            Contact c_b;
-            c_a.xw << muh_contacts.positions[ndx], 1.0;
-            c_b.xw << muh_contacts.positions[ndx], 1.0;
+            Contact c;
+            c.xw << muh_contacts.positions[ndx], 1.0;
             
-            c_a.nw = muh_contacts.normal;
-            c_b.nw = muh_contacts.normal;
+            c.nw = muh_contacts.normal;
             
-            c_a.rigid_body_ndx = bod_a.body_ndx;
-            c_a.rigid_body_other_ndx = bod_b.body_ndx;
+            c.rigid_body_ndx = bod_a.body_ndx;
+            c.rigid_body_other_ndx = bod_b.body_ndx;
             
-            c_b.rigid_body_ndx = bod_b.body_ndx;
-            c_b.rigid_body_other_ndx = bod_a.body_ndx;
-            
-            Vector4d xi_a = bod_a.curr_E.inverse() * c_a.xw;
-            Vector4d xi_b = bod_b.curr_E.inverse() * c_b.xw;
-            
-            Matrix3x6d J_a = bod_a.curr_E.block<3,3>(0,0) * gamma(xi_a.head(3));
-            c_a.N_component = -c_a.nw.transpose() * J_a;
+//            Matrix3x6d J_a = bod_a.curr_E.block<3,3>(0,0) * gamma(xi_a.head(3));
+//            c.N_component = -c.nw.transpose() * J_a;
 //            Vector3d vw_a = bod_a.curr_phi * J_a;
             
             
-            Matrix3x6d J_b = bod_b.curr_E.block<3,3>(0,0) * gamma(xi_b.head(3));
-            c_b.N_component = c_b.nw.transpose() * J_b;
+//            Matrix3x6d J_b = bod_b.curr_E.block<3,3>(0,0) * gamma(xi_b.head(3));
+//            c_b.N_component = c_b.nw.transpose() * J_b;
 //            Vector3d vw_b = bod_b.curr_phi * J_b;
             
-            contacts.push_back(c_a);
-            contacts.push_back(c_b);
+            contacts.push_back(c);
+            num_contacts += 2; //ugh glitch central plz
             
             if (bodies[a].missile) {
                bodies[b].fake_momentum = bodies[a].curr_phi.tail(3);
@@ -211,7 +205,7 @@ Eigen::Vector3d Scene::step_all(double h) {
       
       // Collisions present! Let's ask our friend Mosek for help solving this one.
       MSKtask_t task = NULL;
-      int num_constraints = contacts.size();
+      int num_constraints = num_contacts;
       MSKrescodee r;
       
       r = MSK_maketask(env, num_constraints, num_vars, &task);
@@ -240,9 +234,24 @@ Eigen::Vector3d Scene::step_all(double h) {
       }
       
       //      printf("Contact: %f %f %f %f %f %f\n", contacts[0].N_component[0], contacts[0].N_component[1], contacts[0].N_component[2], contacts[0].N_component[3], contacts[0].N_component[4], contacts[0].N_component[5]);
-      MatrixXd N_accum = MatrixXd::Zero(contacts.size(), 6 * bodies.size());
+      MatrixXd N_accum = MatrixXd::Zero(num_contacts, 6 * bodies.size());
       for (int contact_ndx = 0; contact_ndx < contacts.size(); contact_ndx++) {
-         N_accum.block(contact_ndx, 6 * contacts[contact_ndx].rigid_body_ndx, 1, 6) = contacts[contact_ndx].N_component.transpose();
+         Contact c = contacts[contact_ndx];
+         
+         Link bod_a = bodies[c.rigid_body_ndx];
+         Matrix3d Ra = bod_a.curr_E.block<3,3>(0,0);
+         Vector4d xa = bod_a.curr_E.inverse() * c.xw;
+         Vector6d N_guy = c.nw.transpose() * Ra * gamma(xa.head(3));
+         N_accum.block(contact_ndx, 6 * c.rigid_body_ndx, 1, 6) = N_guy.transpose();
+         
+         if (c.rigid_body_other_ndx != -1) {
+            Link bod_b = bodies[c.rigid_body_other_ndx];
+            Matrix3d Rb = bod_b.curr_E.block<3,3>(0,0);
+            Vector4d xb = bod_b.curr_E.inverse() * c.xw;
+            Vector6d N_guy_b = -c.nw.transpose() * Rb * gamma(xb.head(3));
+            N_accum.block(contact_ndx, 6 * c.rigid_body_other_ndx, 1, 6) = N_guy_b.transpose();
+         }
+         
       }
       double restitution = 0.9;
       VectorXd Nv = N_accum * phi_accum * restitution;

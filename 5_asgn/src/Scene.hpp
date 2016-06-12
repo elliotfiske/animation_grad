@@ -27,6 +27,7 @@ public:
 private:
    std::vector<Link> bodies;
    std::vector<Contact> contacts;
+   int num_contacts = 0;
    
    MSKenv_t env;
    
