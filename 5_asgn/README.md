@@ -1,30 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
-    <meta charset=utf-8>
-    <title>CSC 500 Final Project - Angry Birds</title>
-    <style>
-        body { margin: 0; }
-        canvas { width: 100%; height: 100% }
-    </style>
 
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
-
-</head>
-<body>
-       
-
-      <div class="container">
         Welcome to my CPE 500 final project: <b>Angry Birds Explosions!</b>
-        <iframe width="560" height="315" src="https://www.youtube.com/embed/LZDw04vWOdA" frameborder="0" allowfullscreen></iframe>
+        
         <br>
         <br>
         Use these keys to control the simulation:
@@ -90,7 +66,3 @@ function explode() {
         Then, we tell each rigid body an instantaneous force to apply to the next frame! Notice that since the force needs to be in the local space of the rigid body, we multiply the inverse of its E matrix to go from world space to local space. Neat!
 
       </div>
-      
-
-</body>
-</html>
