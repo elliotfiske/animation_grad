@@ -46,8 +46,10 @@ public:
    double height;
    double depth;
    
+   Eigen::Vector3d explosion_force;
+   
    bool missile;
-   Eigen::Vector3d fake_momentum;
+   Eigen::Vector3d manual_velocity;
    
    double mass;
    

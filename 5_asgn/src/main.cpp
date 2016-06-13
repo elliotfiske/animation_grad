@@ -62,6 +62,10 @@ static void char_callback(GLFWwindow *window, unsigned int key) {
       muh_state = MUH_FLYING;
       scene->activate_burd();
    }
+   
+   if (key == 'e') {
+      scene->explode();
+   }
 }
 
 float even_joint_angles = 0;
@@ -175,6 +179,7 @@ void render()
    // Step the link. NOTE: this is BAD you shouldn't update in the render loop.
    scene->step_all(0.016).cast<float>() - Vector3f(1.0f, 0.0f, 0.0f);
    
+//   camera->translations[0] += 0.1f;
    
 	// Get current frame buffer size.
 	int width, height;

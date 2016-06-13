@@ -43,8 +43,10 @@ Link::Link(double w, double h, double d, double pos_x, double pos_y, double pos_
    depth = d;
    mass = m;
    
+   explosion_force = Vector3d::Zero();
+   
    missile = false;
-   fake_momentum = Vector3d::Zero();
+   manual_velocity = Vector3d::Zero();
    
    // Set the E transform to the starting position and rotation
    curr_E = Matrix4d::Identity();
@@ -90,14 +92,17 @@ Vector6d Link::get_curr_f() {
    
    result -= coriolis;
    
+   result.tail(3) += explosion_force;
+   explosion_force = Vector3d::Zero();
+   
    if (abs(result(4)) > 1000) {
       printf( "hmm");
    }
    
-   printf("FORCE: \n");
-   
-   const IOFormat fmt(2, DontAlignCols, "\t", " ", "", "", "", "");
-   cout << result.format(fmt) << endl;
+//   printf("FORCE: \n");
+//   
+//   const IOFormat fmt(2, DontAlignCols, "\t", " ", "", "", "", "");
+//   cout << result.format(fmt) << endl;
    
    return result;
 }

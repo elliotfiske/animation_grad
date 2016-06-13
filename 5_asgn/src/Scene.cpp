@@ -39,7 +39,7 @@ burd(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1) {
 void Scene::make_links() {
    bodies.clear();
    
-   int scene_num = 2;
+   int scene_num = 3;
    switch (scene_num) {
       case 2: {
          for (int i = 0; i < 20; i++) {
@@ -68,11 +68,11 @@ void Scene::make_links() {
          Link baby_link6(0.2, 1.0, 1.0, -1.5, 6.5, 0.0, 1.0, bodies.size()); // arm 1
          bodies.push_back(baby_link6);
          
-         Link baby_link7(0.2, 1.0, 1.0, 1.5, 9.5, 0.0, 1.0, bodies.size()); // arm 2
+         Link baby_link7(0.2, 1.0, 1.0, 1.5, 6.5, 0.0, 1.0, bodies.size()); // arm 2
          bodies.push_back(baby_link7);
          
-//         Link baby_link8(0.4, 2.0, 0.5, 0.0, 7.0, 0.0, 1.0, bodies.size()); // neck
-//         bodies.push_back(baby_link8);
+         Link baby_link8(0.4, 2.0, 0.5, 0.0, 7.0, 0.0, 1.0, bodies.size()); // neck
+         bodies.push_back(baby_link8);
          
          Link baby_link9(2.0, 2.0, 1.0, 0.0, 9.0, 0.0, 1.0, bodies.size()); // head
          bodies.push_back(baby_link9);
@@ -172,11 +172,11 @@ Eigen::Vector3d Scene::step_all(double h) {
             num_contacts += 2; //ugh glitch central plz
             
             if (bodies[a].missile) {
-               bodies[b].fake_momentum = bodies[a].curr_phi.tail(3);
+               bodies[b].manual_velocity = bodies[a].curr_phi.tail(3);
             }
             
             if (bodies[b].missile) {
-               bodies[a].fake_momentum = bodies[b].curr_phi.tail(3);
+               bodies[a].manual_velocity = bodies[b].curr_phi.tail(3);
             }
          }
       }
@@ -316,9 +316,9 @@ Eigen::Vector3d Scene::step_all(double h) {
          new_phi << result[ndx*6 + 0], result[ndx*6 + 1], result[ndx*6 + 2], result[ndx*6 + 3], result[ndx*6 + 4], result[ndx*6 + 5];
          
          bodies[ndx].curr_phi = new_phi;
-         if (bodies[ndx].fake_momentum != Vector3d::Zero()) {
-//            bodies[ndx].curr_phi.tail(3) = bodies[ndx].fake_momentum;
-            bodies[ndx].fake_momentum = Vector3d::Zero();
+         if (bodies[ndx].manual_velocity != Vector3d::Zero()) {
+            bodies[ndx].curr_phi.tail(3) = bodies[ndx].manual_velocity;
+            bodies[ndx].manual_velocity = Vector3d::Zero();
          }
       }
       
@@ -357,10 +357,18 @@ void Scene::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std:
    }
 }
 
+void Scene::explode() {
+   for (int ndx = 0; ndx < bodies.size(); ndx++) {
+      bodies[ndx].explosion_force = Vector3d(0.0, 5000.0, 0.0);
+   }
+}
 
-void Scene::activate_burd() {
-   burd.fake_momentum = Vector3d(9.0, 8.0, 0.0);
-   bodies.push_back(burd);
+void Scene::new_bomb(double x, double y, double z, double pitch, double yaw) {
+   burd.manual_velocity = Vector3d(9.0, 8.0, 0.0);
+   Link new_bomb(0.5, 0.5, 0.5, x, y, z, 5.0, bodies.size());
+   new_bomb.manual_velocity = Vector3d(sin(pitch), 0.0, cos(pitch));
+   bodies.push_back(new_bomb);
+   
    finish_off();
    poop = false;
 }

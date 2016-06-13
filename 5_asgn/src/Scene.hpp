@@ -23,6 +23,9 @@ public:
    Link burd;
    void activate_burd();
    void finish_off();
+   void explode();
+   
+   void new_bomb(double x, double y, double z, double pitch, double yaw);
    
 private:
    std::vector<Link> bodies;
