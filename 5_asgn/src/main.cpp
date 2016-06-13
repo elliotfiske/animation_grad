@@ -54,13 +54,19 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
 
 static void char_callback(GLFWwindow *window, unsigned int key) {
 	keyToggles[key] = !keyToggles[key];
-   if (key == 'r') {
-      scene->make_links();
+   if (key == '1') {
+      scene->make_links(1);
+   }
+   if (key == '2') {
+      scene->make_links(2);
+   }
+   if (key == '3') {
+      scene->make_links(3);
    }
    
    if (key == ' ') {
       muh_state = MUH_FLYING;
-      scene->activate_burd();
+      scene->new_bomb(-camera->translations(0), -camera->translations(1), -camera->translations(2), camera->rotations(0), camera->rotations(1));
    }
    
    if (key == 'e') {
@@ -161,7 +167,7 @@ static void init()
 	shape->init();
    
    scene = make_shared<Scene>();
-   scene->make_links();
+   scene->make_links(3);
 	
 	camera = make_shared<Camera>();
 	

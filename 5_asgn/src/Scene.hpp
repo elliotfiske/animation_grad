@@ -17,7 +17,7 @@
 class Scene : public Rigid {
 public:
    Scene();
-   void make_links();
+   void make_links(int scene_num);
    Eigen::Vector3d step_all(double time);
    void draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std::shared_ptr<Shape> shape);
    Link burd;

@@ -348,7 +348,7 @@ void Link::step(double h) {
 
 void Link::update_pos(double h) {
    for (int i = 0; i < 6; i++) {
-      curr_phi(i) = clip(curr_phi(i), -10.0, 10.0);
+      curr_phi(i) = clip(curr_phi(i), -20.0, 20.0);
    }
    Matrix4d next_E = integrate(curr_E, curr_phi, h);
    curr_E = next_E;

@@ -36,11 +36,27 @@ burd(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1) {
    if (r != MSK_RES_OK) { printf("Wow, a problem already :3\n"); got_mad_error(r); }
 }
 
-void Scene::make_links() {
+void Scene::make_links(int scene_num) {
    bodies.clear();
    
-   int scene_num = 3;
    switch (scene_num) {
+      case 1:
+         for (int i = 0; i < 10; i++) {
+            double tower_block_height = 1.5;
+            Link lol(1.0, tower_block_height, 0.5, 0.0, (tower_block_height / 2) + i * (tower_block_height + 0.1), 0.0, 0.1, i);
+            bodies.push_back(lol);
+         }
+         for (int i = 0; i < 10; i++) {
+            double tower_block_height = 1.5;
+            Link lol(1.0, tower_block_height, 0.5, 0.0, (tower_block_height / 2) + i * (tower_block_height + 0.1), -0.5, 0.1, i);
+            bodies.push_back(lol);
+         }
+         for (int i = 0; i < 10; i++) {
+            double tower_block_height = 1.5;
+            Link lol(1.0, tower_block_height, 0.5, 0.0, (tower_block_height / 2) + i * (tower_block_height + 0.1), 0.5, 0.1, i);
+            bodies.push_back(lol);
+         }
+         break;
       case 2: {
          for (int i = 0; i < 20; i++) {
             double tower_block_height = 0.5;
@@ -77,12 +93,13 @@ void Scene::make_links() {
          Link baby_link9(2.0, 2.0, 1.0, 0.0, 9.0, 0.0, 1.0, bodies.size()); // head
          bodies.push_back(baby_link9);
          
+         Link wall1(1.0, 20.0, 4.0, 6.0, 11.0, 0.0, 1.0, bodies.size());
+//         wall1.curr_phi.tail(3) = Vector3d(-2.0, 0.0, 0.0);
+         bodies.push_back(wall1);
+         
          break;
    }
    
-   Link wall1(1.0, 20.0, 4.0, 6.0, 11.0, 0.0, 1.0, bodies.size());
-   wall1.curr_phi.tail(3) = Vector3d(-2.0, 0.0, 0.0);
-   bodies.push_back(wall1);
    
    burd = Link(0.5, 0.5, 0.5, -8.0, 0.25, 0.0, 1.0, bodies.size());
    burd.mass = 10;
@@ -359,14 +376,31 @@ void Scene::draw(MatrixStack *M, const std::shared_ptr<Program> prog, const std:
 
 void Scene::explode() {
    for (int ndx = 0; ndx < bodies.size(); ndx++) {
-      bodies[ndx].explosion_force = Vector3d(0.0, 5000.0, 0.0);
+      if (bodies[ndx].missile) {
+         for (int j = 0; j < bodies.size(); j++) {
+            if (j == ndx) continue;
+            
+            Vector3d target_posn = bodies[j].curr_E.block<3, 1>(0, 3);
+            Vector3d bomb_posn = bodies[ndx].curr_E.block<3, 1>(0, 3);
+            Vector3d diff = bomb_posn - target_posn;
+            double dist = diff.norm();
+            
+            double radius = 10.0;
+            if (dist > radius) dist = radius;
+            
+            Vector4d world_exp_force;
+            world_exp_force << -diff.normalized() * (radius - dist) * 1000, 0.0;
+            
+            bodies[j].explosion_force = (bodies[j].curr_E.inverse() * world_exp_force).head(3);
+         }
+      }
    }
 }
 
 void Scene::new_bomb(double x, double y, double z, double pitch, double yaw) {
-   burd.manual_velocity = Vector3d(9.0, 8.0, 0.0);
-   Link new_bomb(0.5, 0.5, 0.5, x, y, z, 5.0, bodies.size());
-   new_bomb.manual_velocity = Vector3d(sin(pitch), 0.0, cos(pitch));
+   Link new_bomb(0.5, 0.5, 0.5, burd.curr_E(0, 3), burd.curr_E(1, 3), burd.curr_E(2, 3), 5.0, bodies.size());
+   new_bomb.manual_velocity = Vector3d(9.0, 3.0, 0.0);
+   new_bomb.missile = true;
    bodies.push_back(new_bomb);
    
    finish_off();

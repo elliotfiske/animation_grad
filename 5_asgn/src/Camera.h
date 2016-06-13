@@ -31,13 +31,13 @@ public:
 	void applyProjectionMatrix(std::shared_ptr<MatrixStack> P) const;
    void applyViewMatrix(std::shared_ptr<MatrixStack> MV) const;
    Eigen::Vector3f translations;
+   Eigen::Vector2f rotations;
 	
 private:
 	float aspect;
 	float fovy;
 	float znear;
 	float zfar;
-	Eigen::Vector2f rotations;
 	Eigen::Vector2f mousePrev;
 	int state;
 	float rfactor;

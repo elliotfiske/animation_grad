@@ -1,67 +1,96 @@
-Lab 7 -  Forward Kinematics / Hierarchical Modeling
-===================================================
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+    <meta charset=utf-8>
+    <title>CSC 500 Final Project - Angry Birds</title>
+    <style>
+        body { margin: 0; }
+        canvas { width: 100%; height: 100% }
+    </style>
 
-Today we're going to create a simple hierarchical robot.
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
-Please download the code for the lab and go over the code.
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
 
-- On the web: <http://users.csc.calpoly.edu/~ssueda/teaching/CSC474/2016W/labs/L07/L07.zip>
-- On the server: `cp ~ssueda/www/teaching/CSC474/2016W/labs/L07/L07.zip .`
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
-When you run the code, you should see a textured object and a background grid.
-You'll be using this object as the mesh for the robot links. When you drag the
-mouse with the ALT key pressed, you should see some console output. You'll be
-using these values to control the joint angles of the robot.
+</head>
+<body>
+       
 
-Create a class called `Link`. It should have the following member variables:
+      <div class="container">
+        Welcome to my CPE 500 final project: <b>Angry Birds Explosions!</b>
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/LZDw04vWOdA" frameborder="0" allowfullscreen></iframe>
+        <br>
+        <br>
+        Use these keys to control the simulation:
+        <br>
+        <br>
+        <br>
+        <b>1, 2, and 3:</b> Change scenes. <b>1</b> is a 3-layer tower, <b>2</b> is a tall, skinny tower and <b>3</b> is a little dude standing next to a wall.
 
-- A pointer to the parent link
-- An array (or an `std::vector`) of pointers to child links
-- A 4x4 matrix, $^p_iE$, for the transform of this link with respect to the
-  parent link
-- A 4x4 matrix, $^i_{Mi}E$, for the transform of the mesh with respect to this
-  link
-- A float for the current angle.
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-xs-4 col-xs-offset-2" />
+                <img src="http://i.giphy.com/xT8qAZQjM5XDlm4RhK.gif" style="display: block"/>
+            </div>
+        </div>
+        <br>
+        <br>
 
-Since you're going to create a 2D planar mechanism, you only need a single
-float for the rotation. For convenience, the origin of each link is going to
-be where the joint is. For example, for the "upper arm" link, the origin will
-be at the shoulder, and for the "lower arm" link the origin is going to be at
-the elbow.
+        You can drag the mouse around to change where the "missiles" fly from. Once you press <b>space</b> to launch a missile, the mouse will start to control the camera instead!
+        
+        <div class="row">
+            <div class="col-xs-4 col-xs-offset-2" />
+                <img src="http://i.giphy.com/26BRrkJSoJTzbUSKQ.gif" style="display: block"/>
+            </div>
+        </div>
 
-<img src="images/image1.jpg" width="500px"/>
+        Once a missile is flying, press <b>E</b> to cause an <b>Explosion!</b> All the block around any spawned missiles will get sent flying back!
 
-The arrows indicate what the two transformation matrices represent. $^p_iE$
-describes where the current link is with respect to the parent link. In the
-figure above, it represents where the elbow joint is with respect to the
-shoulder joint. $^i_{Mi}E$ describes where the mesh's origin is with respect
-to the current link.
+			<div class="row">
+            <div class="col-xs-4 col-xs-offset-2" />
+                <img src="http://i.giphy.com/l0CRC2ld2Xnlncicw.gif" style="display: block"/>
+            </div>
+        </div>
 
-The first four of these member variables should be set in the scene loading
-function. The last variable, `angle`, should be set using the mouse in the
-`cursor_position_callback()` function.
+        You can spawn as many missiles and cause as many explosions as you want. Go crazy! Once you change scenes, everything will be reset.
 
-The pseudocode for the recursive drawing function is
+        <br>
+        
 
-	void Link::draw(MatrixStack M) {
-		M.push();
-		M.mult(Ei);
-		M.rotate(angle);
-		M.push();
-		M.mult(Mi);
-		Send M's top matrix to the GPU
-		drawMesh();
-		M.pop();
-		for child in children
-			child.draw(M);
-		M.pop();
-	}
+        <h3>Explosion Forces</h3>
+        There are a couple ways you could model explosions. You could simply set the velocity of nearby rigid bodies, but that might not be consistent if there are a lot of moving parts. I chose to apply an instant force to all objects caught in the explosion.
+        <br>
+        <pre>
+function explode() {
+   Vector3d target_posn = bodies[i].curr_E.block<3, 1>(0, 3);
+   Vector3d bomb_posn = bodies[bomb_ndx].curr_E.block<3, 1>(0, 3);
+   Vector3d diff = bomb_posn - target_posn;
+   double dist = diff.norm();
+   
+   double radius = 10.0;
+   if (dist > radius) dist = radius;
+   
+   Vector4d world_exp_force;
+   world_exp_force << -diff.normalized() * (radius - dist) * 1000, 0.0;
+   
+   bodies[j].explosion_force = (bodies[j].curr_E.inverse() * world_exp_force).head(3);
+}
+</pre>
+        <br>
+        To do this, we take the vector FROM the bomb TO every rigid body in the scene. Then, we normalize it, and set its magnitude so that <i>close-by</i> bodies are affected more by the explosion.
+        <br>
+        <br>
+        Then, we tell each rigid body an instantaneous force to apply to the next frame! Notice that since the force needs to be in the local space of the rigid body, we multiply the inverse of its E matrix to go from world space to local space. Neat!
 
-Here, the variable `Ei` refers to $^p_iE$, and the variable `Mi` refers to
-$^i_{Mi}E$. Start with a simple robot first. Your final task is to build a
-two-arm robot composed of 5 links. The root should be draw at the world origin
-and should be fixed. Moving the mouse in one direction (x or y) should change
-the shoulder angles, and moving the mouse in the other direction should change
-the elbow angles.
+      </div>
+      
 
-<img src="images/image2.jpg" width="400px"/>
+</body>
+</html>
